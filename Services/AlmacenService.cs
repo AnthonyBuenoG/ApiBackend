@@ -64,6 +64,8 @@ namespace reportesApi.Services
 
         public string InsertAlmacen(InsertAlmacenModel Almacen)
         {
+            int IdAlmacen;
+
             ConexionDataAccess dac = new ConexionDataAccess(connection);
             parametros = new ArrayList();
             string mensaje;
@@ -72,16 +74,17 @@ namespace reportesApi.Services
             parametros.Add(new SqlParameter { ParameterName = "@Direccion", SqlDbType = System.Data.SqlDbType.VarChar, Value = Almacen.Direccion});
             parametros.Add(new SqlParameter { ParameterName = "@UsuarioRegistra", SqlDbType = System.Data.SqlDbType.Int, Value = Almacen.UsuarioRegistra });
 
-            try
+            try 
             {
                 DataSet ds = dac.Fill("sp_insert_almacenes", parametros);
-                mensaje = ds.Tables[0].AsEnumerable().Select(dataRow => dataRow["mensaje"].ToString()).ToList()[0];
+                IdAlmacen = ds.Tables[0].AsEnumerable().Select(dataRow=>int.Parse(dataRow["IdAlmacen"].ToString())).ToList()[0];
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
-            return mensaje;
+            return IdAlmacen.ToString();
         }
 
         public string UpdateAlmacen(UpdateAlmacenModel Almacen)

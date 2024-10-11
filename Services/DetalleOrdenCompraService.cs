@@ -30,15 +30,16 @@ namespace reportesApi.Services
              
         }
 
-        public List<GetDetalleOrdenCompraModel> GetDetalleOrdenCompra()
+        public List<GetDetalleOrdenCompraModel> GetDetalleOrdenCompra(int IdOredenCompra)
         {
+
             ConexionDataAccess dac = new ConexionDataAccess(connection);
-            GetDetalleOrdenCompraModel almacen = new GetDetalleOrdenCompraModel();
+            parametros = new ArrayList();
+            parametros.Add(new SqlParameter { ParameterName = "@IdOrdenCompra", SqlDbType = SqlDbType.Int, Value = IdOredenCompra });
 
             List<GetDetalleOrdenCompraModel> lista = new List<GetDetalleOrdenCompraModel>();
             try
             {
-                parametros = new ArrayList();
                 DataSet ds = dac.Fill("sp_get_detalleordencompra", parametros);
                 if (ds.Tables[0].Rows.Count > 0)
                 {
@@ -53,13 +54,12 @@ namespace reportesApi.Services
                         Costo = decimal.Parse(dataRow["Costo"].ToString()),
                         CostoRenglon = decimal.Parse(dataRow["CostoRenglon"].ToString()),
                         UsuarioRegistra = dataRow["UsuarioRegistra"].ToString(),
-
-
                     }).ToList();
                 }
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
             return lista;
@@ -67,6 +67,7 @@ namespace reportesApi.Services
 
         public string InsertDetalleOrdenCompra(InsertDetalleOrdenCompraModel detalleordencompra)
         {
+            int IdDetalleOrdenCmpra;
             ConexionDataAccess dac = new ConexionDataAccess(connection);
             parametros = new ArrayList();
             string mensaje;
@@ -79,16 +80,17 @@ namespace reportesApi.Services
             parametros.Add(new SqlParameter { ParameterName = "@CostoRenglon", SqlDbType = System.Data.SqlDbType.Decimal, Value = detalleordencompra.CostoRenglon});
             parametros.Add(new SqlParameter { ParameterName = "@UsuarioRegistra", SqlDbType = System.Data.SqlDbType.Int, Value = detalleordencompra.UsuarioRegistra });
 
-            try
+            try 
             {
                 DataSet ds = dac.Fill("sp_insert_detalleordencompra", parametros);
-                mensaje = ds.Tables[0].AsEnumerable().Select(dataRow => dataRow["mensaje"].ToString()).ToList()[0];
+                IdDetalleOrdenCmpra = ds.Tables[0].AsEnumerable().Select(dataRow=>int.Parse(dataRow["IdDetalleOrdenCompra"].ToString())).ToList()[0];
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
-            return mensaje;
+            return IdDetalleOrdenCmpra.ToString();
         }
 
         public string UpdateDetalleOrdenCompra(UpdateDetalleOrdenCompraModel detalleordencompra)

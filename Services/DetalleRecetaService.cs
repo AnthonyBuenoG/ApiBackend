@@ -30,15 +30,16 @@ namespace reportesApi.Services
              
         }
 
-        public List<GetDetalleRecetaModel> GetDetalleReceta()
+         public List<GetDetalleRecetaModel> GetDetalleReceta(int IdReceta)
         {
+
             ConexionDataAccess dac = new ConexionDataAccess(connection);
-            GetDetalleRecetaModel detallereceta = new GetDetalleRecetaModel();
+            parametros = new ArrayList();
+            parametros.Add(new SqlParameter { ParameterName = "@IdReceta", SqlDbType = SqlDbType.Int, Value = IdReceta });
 
             List<GetDetalleRecetaModel> lista = new List<GetDetalleRecetaModel>();
             try
             {
-                parametros = new ArrayList();
                 DataSet ds = dac.Fill("sp_get_detallereceta", parametros);
                 if (ds.Tables[0].Rows.Count > 0)
                 {
@@ -48,24 +49,21 @@ namespace reportesApi.Services
                         Id = int.Parse(dataRow["Id"].ToString()),
                         IdReceta = int.Parse(dataRow["IdReceta"].ToString()),
                         Insumo = dataRow["Insumo"].ToString(),
-                        Cantidad = decimal.Parse(dataRow["Cantidad"].ToString()),
+                        Cantidad = int.Parse(dataRow["Cantidad"].ToString()),
                         UsuarioRegistra = dataRow["UsuarioRegistra"].ToString(),
-
-
-
-                      
                     }).ToList();
                 }
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
             return lista;
         }
-
         public string InsertDetalleReceta(InsertDetalleRecetaModel detallereceta)
         {
+            int IdDetalleReceta;
             ConexionDataAccess dac = new ConexionDataAccess(connection);
             parametros = new ArrayList();
             string mensaje;
@@ -76,16 +74,18 @@ namespace reportesApi.Services
             parametros.Add(new SqlParameter { ParameterName = "@UsuarioRegistra", SqlDbType = System.Data.SqlDbType.Int, Value = detallereceta.UsuarioRegistra });
 
 
-            try
+             try 
             {
                 DataSet ds = dac.Fill("sp_insert_detallereceta", parametros);
-                mensaje = ds.Tables[0].AsEnumerable().Select(dataRow => dataRow["mensaje"].ToString()).ToList()[0];
+                IdDetalleReceta = ds.Tables[0].AsEnumerable().Select(dataRow=>int.Parse(dataRow["IdDetalleReceta"].ToString())).ToList()[0];
             }
+
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
-            return mensaje;
+            return IdDetalleReceta.ToString();
         }
 
         public string UpdateDetalleReceta(UpdateDetalleRecetaModel detallereceta)

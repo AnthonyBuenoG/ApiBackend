@@ -68,6 +68,7 @@ namespace reportesApi.Services
 
         public string InsertProveedor(InsertProveedorModel Proveedor)
         {
+            int IdProveedor;
             ConexionDataAccess dac = new ConexionDataAccess(connection);
             parametros = new ArrayList();
             string mensaje;
@@ -81,16 +82,17 @@ namespace reportesApi.Services
             parametros.Add(new SqlParameter { ParameterName = "@UsuarioRegistra", SqlDbType = System.Data.SqlDbType.Int, Value = Proveedor.UsuarioRegistra });
 
 
-            try
+            try 
             {
                 DataSet ds = dac.Fill("sp_insert_proveedores", parametros);
-                mensaje = ds.Tables[0].AsEnumerable().Select(dataRow => dataRow["mensaje"].ToString()).ToList()[0];
+                IdProveedor = ds.Tables[0].AsEnumerable().Select(dataRow=>int.Parse(dataRow["IdProveedor"].ToString())).ToList()[0];
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
-            return mensaje;
+            return IdProveedor.ToString();
         }
 
         public string UpdateProveedor(UpdateProveedorModel Proveedor)

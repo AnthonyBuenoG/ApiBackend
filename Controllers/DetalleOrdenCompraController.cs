@@ -63,26 +63,29 @@ namespace reportesApi.Controllers
             return new JsonResult(objectResponse);
         }
 
-        [HttpGet("GetDetalleOrdenCompra")]
-        public IActionResult GetDetalleOrdenCompra()
+      [HttpGet("GetDetalleOrdenCompra")]
+        public IActionResult GetDetalleOrdenCompra([FromQuery] int IdOrdenCompra)
         {
             var objectResponse = Helper.GetStructResponse();
-            var resultado = _DetalleOrdenCompraService.GetDetalleOrdenCompra();
 
             try
             {
                 objectResponse.StatusCode = (int)HttpStatusCode.OK;
                 objectResponse.success = true;
-                objectResponse.message = "data cargado con exito";
-
+                objectResponse.message = "DetalleReceta cargados exitosamente";
+                var resultado = _DetalleOrdenCompraService.GetDetalleOrdenCompra(IdOrdenCompra);
+               
+               
 
                 // Llamando a la función y recibiendo los dos valores.
-                
+               
                  objectResponse.response = resultado;
             }
 
             catch (System.Exception ex)
             {
+                objectResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
+                objectResponse.success = false;
                 objectResponse.message = ex.Message;
             }
 

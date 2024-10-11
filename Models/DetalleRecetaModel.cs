@@ -6,6 +6,7 @@ namespace reportesApi.Models
     {
         public int Id { get; set; }
         public int IdReceta { get; set; }
+
         public string Insumo{ get; set; }
         public decimal Cantidad {get; set;}
         public string UsuarioRegistra { get; set; }

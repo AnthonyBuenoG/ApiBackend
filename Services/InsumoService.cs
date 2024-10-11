@@ -67,6 +67,7 @@ namespace reportesApi.Services
 
         public string InserInsumo(InsertInsumoModel Insumo)
         {
+            int IdInsumo;
             ConexionDataAccess dac = new ConexionDataAccess(connection);
             parametros = new ArrayList();
             string mensaje;
@@ -77,17 +78,17 @@ namespace reportesApi.Services
             parametros.Add(new SqlParameter { ParameterName = "@UnidadMedida", SqlDbType = System.Data.SqlDbType.Int, Value = Insumo.UnidadMedida});
             parametros.Add(new SqlParameter { ParameterName = "@InsumoUp", SqlDbType = System.Data.SqlDbType.VarChar, Value = Insumo.InsumoUp});
             parametros.Add(new SqlParameter { ParameterName = "@UsuarioRegistra", SqlDbType = System.Data.SqlDbType.Int, Value = Insumo.UsuarioRegistra });
-
-            try
+            try 
             {
                 DataSet ds = dac.Fill("sp_insert_insumos", parametros);
-                mensaje = ds.Tables[0].AsEnumerable().Select(dataRow => dataRow["mensaje"].ToString()).ToList()[0];
+                IdInsumo = ds.Tables[0].AsEnumerable().Select(dataRow=>int.Parse(dataRow["IdInsumo"].ToString())).ToList()[0];
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
-            return mensaje;
+            return IdInsumo.ToString();
         }
 
         public string UpdateInsumo(UpdateInsumoModel Insumo)

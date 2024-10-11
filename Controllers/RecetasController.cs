@@ -43,31 +43,27 @@ namespace reportesApi.Controllers
         }
 
 
-        [HttpPost("Insert Receta")]
-        public IActionResult InsertRecetas([FromBody] InsertRecetasModel req )
+        [HttpPost("InsertReceta")]
+         public IActionResult InsertReceta([FromBody] InsertRecetasModel req )
         {
-           var objectResponse = Helper.GetStructResponse();
-                try
-                {
-                    // Llamar al servicio que devuelve el ID insertado
-                    string idInsertado = _RecetasService.InsertReceta(req);
-                    
-                    objectResponse.StatusCode = (int)HttpStatusCode.OK;
-                    objectResponse.success = true;
-                    objectResponse.message = "Receta insertada correctamente";
-                    objectResponse.data = new { IdInsertado = idInsertado }; // Añadir el ID a los datos de respuesta
-                }
-                catch (System.Exception ex)
-                {
-                    objectResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    objectResponse.success = false;
-                    objectResponse.message = ex.Message;
-                }
+            var objectResponse = Helper.GetStructResponse();
+            try
+            {
+                objectResponse.StatusCode = (int)HttpStatusCode.OK;
+                objectResponse.success = true;
+                objectResponse.message = _RecetasService.InsertReceta(req);
 
-                return new JsonResult(objectResponse);
+            }
+
+            catch (System.Exception ex)
+            {
+                objectResponse.message = ex.Message;
+            }
+
+            return new JsonResult(objectResponse);
         }
 
-        [HttpGet("Get Recetas")]
+        [HttpGet("GetRecetas")]
         public IActionResult GetRecetas()
         {
             var objectResponse = Helper.GetStructResponse();
@@ -93,7 +89,7 @@ namespace reportesApi.Controllers
             return new JsonResult(objectResponse);
         }
 
-        [HttpPut("Update Recetas")]
+        [HttpPut("UpdateRecetas")]
         public IActionResult UpdateRecetas([FromBody] UpdateRecetasModel req )
         {
             var objectResponse = Helper.GetStructResponse();

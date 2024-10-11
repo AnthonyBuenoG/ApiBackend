@@ -66,6 +66,7 @@ namespace reportesApi.Services
 
         public string InsertOrdenCompra(InsertOrdenCompraModel ordencompra)
         {
+            int IdOrdenCompra;
             ConexionDataAccess dac = new ConexionDataAccess(connection);
             parametros = new ArrayList();
             string mensaje;
@@ -76,16 +77,17 @@ namespace reportesApi.Services
             parametros.Add(new SqlParameter { ParameterName = "@Total", SqlDbType = System.Data.SqlDbType.Decimal, Value = ordencompra.Total});
             parametros.Add(new SqlParameter { ParameterName = "@UsuarioRegistra", SqlDbType = System.Data.SqlDbType.Int, Value = ordencompra.UsuarioRegistra });
 
-            try
+             try 
             {
                 DataSet ds = dac.Fill("sp_insert_ordencompra", parametros);
-                mensaje = ds.Tables[0].AsEnumerable().Select(dataRow => dataRow["mensaje"].ToString()).ToList()[0];
+                IdOrdenCompra = ds.Tables[0].AsEnumerable().Select(dataRow=>int.Parse(dataRow["IdOrdenCompra"].ToString())).ToList()[0];
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
-            return mensaje;
+            return IdOrdenCompra.ToString();
         }
 
         public string UpdateOrdenCompra(UpdateOrdenCompraModel ordencompra)
