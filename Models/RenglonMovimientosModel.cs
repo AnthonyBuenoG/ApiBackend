@@ -21,7 +21,7 @@ namespace reportesApi.Models
         public string Insumo { get; set; }
         public decimal Cantidad { get; set; }
         public decimal Costo { get; set; }
-        public string UsuarioRegistra { get; set; }
+        public int UsuarioRegistra { get; set; }
        
     }
 
@@ -32,7 +32,7 @@ namespace reportesApi.Models
         public string Insumo { get; set; }
         public decimal Cantidad { get; set; }
         public decimal Costo { get; set; }
-        public string UsuarioRegistra { get; set; }
+        public int UsuarioRegistra { get; set; }
 
     }
 
