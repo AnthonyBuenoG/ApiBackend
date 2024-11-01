@@ -30,10 +30,11 @@ namespace reportesApi.Services
              
         }
 
-        public List<GetRenglonMovimientosModel> GetRenglonMovimientos()
+        public List<GetRenglonMovimientosModel> GetRenglonMovimientos(int IdMovimiento)
         {
             ConexionDataAccess dac = new ConexionDataAccess(connection);
             GetRenglonMovimientosModel renglonmovimientos = new GetRenglonMovimientosModel();
+            parametros.Add(new SqlParameter { ParameterName = "@IdMovimiento", SqlDbType = SqlDbType.Int, Value = IdMovimiento });
 
             List<GetRenglonMovimientosModel> lista = new List<GetRenglonMovimientosModel>();
             try
@@ -102,7 +103,7 @@ namespace reportesApi.Services
             parametros.Add(new SqlParameter { ParameterName = "@Insumo", SqlDbType = System.Data.SqlDbType.VarChar, Value = RenglonMovimientos.Insumo});
             parametros.Add(new SqlParameter { ParameterName = "@Cantidad", SqlDbType = System.Data.SqlDbType.Decimal, Value = RenglonMovimientos.Cantidad });
             parametros.Add(new SqlParameter { ParameterName = "@Costo", SqlDbType = System.Data.SqlDbType.Decimal, Value = RenglonMovimientos.Costo});
-            parametros.Add(new SqlParameter { ParameterName = "@UsuarioRegistra", SqlDbType = System.Data.SqlDbType.Int, Value = RenglonMovimientos.UsuarioRegistra });
+            parametros.Add(new SqlParameter { ParameterName = "@UsuarioRegistro", SqlDbType = System.Data.SqlDbType.Int, Value = RenglonMovimientos.UsuarioRegistra });
             try
             {
                 DataSet ds = dac.Fill("sp_update_renglonmovimientos", parametros);
