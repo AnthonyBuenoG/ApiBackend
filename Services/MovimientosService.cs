@@ -30,34 +30,67 @@ namespace reportesApi.Services
              
         }
 
-        public List<GetMovimientosModel> GetMovimientos()
+        // public List<GetMovimientosModel> GetMovimientos()
+        // {
+        //     ConexionDataAccess dac = new ConexionDataAccess(connection);
+        //     GetMovimientosModel movimientos = new GetMovimientosModel();
+
+        //     List<GetMovimientosModel> lista = new List<GetMovimientosModel>();
+        //     try
+        //     {
+        //         parametros = new ArrayList();
+        //         DataSet ds = dac.Fill("sp_get_movimientos", parametros);
+        //         if (ds.Tables[0].Rows.Count > 0)
+        //         {
+
+        //           lista = ds.Tables[0].AsEnumerable()
+        //             .Select(dataRow => new GetMovimientosModel {
+        //                 Id = int.Parse(dataRow["Id"].ToString()),
+        //                 IdTipoMovimiento = int.Parse(dataRow["IdTipoMovimiento"].ToString()),
+        //                 IdAlmacen = int.Parse(dataRow["IdAlmacen"].ToString()),
+        //                 Fecha  = dataRow["Fecha"].ToString(),
+        //                 Estatus = dataRow["Estatus"].ToString(),
+        //                 FechaRegistro = dataRow["FechaRegistro"].ToString(),
+        //                 IdUsuario = dataRow["IdUsuario"].ToString(),
+
+        //             }).ToList();
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         throw ex;
+        //     }
+        //     return lista;
+        // }
+                         public List<GetMovimientosModel> GetMovimientos(int IdTipoMovimiento)
         {
+
             ConexionDataAccess dac = new ConexionDataAccess(connection);
-            GetMovimientosModel movimientos = new GetMovimientosModel();
+            parametros = new ArrayList();
+            parametros.Add(new SqlParameter { ParameterName = "@IdTipoMovimiento", SqlDbType = SqlDbType.Int, Value = IdTipoMovimiento });
 
             List<GetMovimientosModel> lista = new List<GetMovimientosModel>();
             try
             {
-                parametros = new ArrayList();
                 DataSet ds = dac.Fill("sp_get_movimientos", parametros);
                 if (ds.Tables[0].Rows.Count > 0)
                 {
 
                   lista = ds.Tables[0].AsEnumerable()
                     .Select(dataRow => new GetMovimientosModel {
-                        Id = int.Parse(dataRow["Id"].ToString()),
+                      Id = int.Parse(dataRow["Id"].ToString()),
                         IdTipoMovimiento = int.Parse(dataRow["IdTipoMovimiento"].ToString()),
                         IdAlmacen = int.Parse(dataRow["IdAlmacen"].ToString()),
                         Fecha  = dataRow["Fecha"].ToString(),
                         Estatus = dataRow["Estatus"].ToString(),
                         FechaRegistro = dataRow["FechaRegistro"].ToString(),
                         IdUsuario = dataRow["IdUsuario"].ToString(),
-
                     }).ToList();
                 }
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
             return lista;
@@ -65,9 +98,7 @@ namespace reportesApi.Services
 
         public string InsertMovimientos(InsertMovimientosModel Movimientos)
         {
-                        int IdMovimiento;
-
-
+            int IdMovimiento;
             ConexionDataAccess dac = new ConexionDataAccess(connection);
             parametros = new ArrayList();
             string mensaje;

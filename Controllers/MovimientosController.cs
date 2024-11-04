@@ -63,8 +63,8 @@ namespace reportesApi.Controllers
             return new JsonResult(objectResponse);
         }
 
-         [HttpGet("GetMovimientos")]
-        public IActionResult GetMovimientos()
+        [HttpGet("GetMovimientos")]
+        public IActionResult GetMovimientos([FromQuery] int IdTipoMovimiento)
         {
             var objectResponse = Helper.GetStructResponse();
 
@@ -72,8 +72,8 @@ namespace reportesApi.Controllers
             {
                 objectResponse.StatusCode = (int)HttpStatusCode.OK;
                 objectResponse.success = true;
-                objectResponse.message = "Data cargados exitosamente";
-                var resultado = _Movimientos.GetMovimientos();
+                objectResponse.message = "DetalleEntradas cargados con exito";
+                var resultado = _Movimientos.GetMovimientos(IdTipoMovimiento);
                
                
 

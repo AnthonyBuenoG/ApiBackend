@@ -65,6 +65,7 @@ namespace reportesApi.Services
         public string InsertTipoMovimiento(InsertTipoMovimientoModel TipoMovimiento)
         {
 
+            int IdTipoMovimiento;
             ConexionDataAccess dac = new ConexionDataAccess(connection);
             parametros = new ArrayList();
             string mensaje;
@@ -76,13 +77,14 @@ namespace reportesApi.Services
             try 
             {
                 DataSet ds = dac.Fill("sp_insert_tipomovimiento", parametros);
-                mensaje = ds.Tables[0].AsEnumerable().Select(dataRow => dataRow["mensaje"].ToString()).ToList()[0];
+               IdTipoMovimiento = ds.Tables[0].AsEnumerable().Select(dataRow=>int.Parse(dataRow["IdTipoMovimiento"].ToString())).ToList()[0];
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
-            return mensaje;
+            return IdTipoMovimiento.ToString();
         }
 
         public string UpdateTipoMovimiento(UpdateTipoMovimientoModel TipoMovimiento)

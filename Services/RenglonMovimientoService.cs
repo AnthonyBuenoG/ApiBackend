@@ -27,19 +27,55 @@ namespace reportesApi.Services
              connection = settings.ConnectionString;
 
              _webHostEnvironment = webHostEnvironment;
-             
+
         }
 
-        public List<GetRenglonMovimientosModel> GetRenglonMovimientos(int IdMovimiento)
+        // public List<GetRenglonMovimientosModel> GetRenglonMovimientos(int IdMovimiento)
+        // {
+        //     ConexionDataAccess dac = new ConexionDataAccess(connection);
+        //     GetRenglonMovimientosModel renglonmovimientos = new GetRenglonMovimientosModel();
+        //     parametros.Add(new SqlParameter { ParameterName = "@IdMovimiento", SqlDbType = SqlDbType.Int, Value = IdMovimiento });
+
+        //     List<GetRenglonMovimientosModel> lista = new List<GetRenglonMovimientosModel>();
+        //     try
+        //     {
+        //         parametros = new ArrayList();
+        //         DataSet ds = dac.Fill("sp_get_renglonesmovimientos", parametros);
+        //         if (ds.Tables[0].Rows.Count > 0)
+        //         {
+
+        //           lista = ds.Tables[0].AsEnumerable()
+        //             .Select(dataRow => new GetRenglonMovimientosModel {
+        //                 Id = int.Parse(dataRow["Id"].ToString()),
+        //                 IdMovimiento = int.Parse(dataRow["IdMovimiento"].ToString()),
+        //                 Insumo = dataRow["Insumo"].ToString(),
+        //                 DescripcionInsumo = dataRow["DescripcionInsumo"].ToString(),
+        //                 Cantidad = decimal.Parse(dataRow["Cantidad"].ToString()),
+        //                 Costo = decimal.Parse(dataRow["Costo"].ToString()),
+        //                 Estatus = dataRow["Estatus"].ToString(),
+        //                 FechaRegistro = dataRow["FechaRegistro"].ToString(),
+        //                 UsuarioRegistra = dataRow["UsuarioRegistra"].ToString(),
+
+
+        //             }).ToList();
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         throw ex;
+        //     }
+        //     return lista;
+        // }
+                 public List<GetRenglonMovimientosModel> GetRenglonMovimimentos(int IdMovimiento)
         {
+
             ConexionDataAccess dac = new ConexionDataAccess(connection);
-            GetRenglonMovimientosModel renglonmovimientos = new GetRenglonMovimientosModel();
+            parametros = new ArrayList();
             parametros.Add(new SqlParameter { ParameterName = "@IdMovimiento", SqlDbType = SqlDbType.Int, Value = IdMovimiento });
 
             List<GetRenglonMovimientosModel> lista = new List<GetRenglonMovimientosModel>();
             try
             {
-                parametros = new ArrayList();
                 DataSet ds = dac.Fill("sp_get_renglonesmovimientos", parametros);
                 if (ds.Tables[0].Rows.Count > 0)
                 {
@@ -56,12 +92,12 @@ namespace reportesApi.Services
                         FechaRegistro = dataRow["FechaRegistro"].ToString(),
                         UsuarioRegistra = dataRow["UsuarioRegistra"].ToString(),
 
-
                     }).ToList();
                 }
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 throw ex;
             }
             return lista;
@@ -80,7 +116,7 @@ namespace reportesApi.Services
             parametros.Add(new SqlParameter { ParameterName = "@Costo", SqlDbType = System.Data.SqlDbType.Decimal, Value = RenglonMovimientos.Costo});
             parametros.Add(new SqlParameter { ParameterName = "@UsuarioRegistra", SqlDbType = System.Data.SqlDbType.Int, Value = RenglonMovimientos.UsuarioRegistra });
 
-            try 
+            try
             {
                 DataSet ds = dac.Fill("sp_insert_renglonesmovimientos", parametros);
                 mensaje = ds.Tables[0].AsEnumerable().Select(dataRow => dataRow["mensaje"].ToString()).ToList()[0];

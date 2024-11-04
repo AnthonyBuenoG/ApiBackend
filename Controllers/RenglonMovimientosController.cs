@@ -73,7 +73,7 @@ namespace reportesApi.Controllers
                 objectResponse.StatusCode = (int)HttpStatusCode.OK;
                 objectResponse.success = true;
                 objectResponse.message = "DetalleEntradas cargados con exito";
-                var resultado = _RenglonMovimientos.GetRenglonMovimientos(IdMovimiento);
+                var resultado = _RenglonMovimientos.GetRenglonMovimimentos(IdMovimiento);
                
                
 
