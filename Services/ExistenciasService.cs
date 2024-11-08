@@ -66,51 +66,50 @@ namespace reportesApi.Services
         // }
 
         public List<GetExistenciasModel> GetExistencias(DateTime? fechaInicio = null, DateTime? fechaFin = null, int? idAlmacen = null)
-{
-    ConexionDataAccess dac = new ConexionDataAccess(connection);
-    List<GetExistenciasModel> lista = new List<GetExistenciasModel>();
-    
-    try
-    {
-        ArrayList parametros = new ArrayList();
-
-        // Agregar parámetros de fecha y almacén si están presentes
-        if (fechaInicio.HasValue)
-            parametros.Add(new SqlParameter("@fechaInicio", fechaInicio.Value));
-        
-        if (fechaFin.HasValue)
-            parametros.Add(new SqlParameter("@fechaFin", fechaFin.Value));
-        
-        if (idAlmacen.HasValue)
-            parametros.Add(new SqlParameter("@idAlmacen", idAlmacen.Value));
-
-        DataSet ds = dac.Fill("sp_get_existencia", parametros);
-
-        if (ds.Tables[0].Rows.Count > 0)
         {
-            lista = ds.Tables[0].AsEnumerable()
-                .Select(dataRow => new GetExistenciasModel
-                {
-                    Id = int.Parse(dataRow["Id"].ToString()),
-                    Fecha = dataRow["Fecha"].ToString(),
-                    Insumo = dataRow["Insumo"].ToString(),
-                    DescripcionInsumo = dataRow["DescripcionInsumo"].ToString(),
-                    Cantidad = dataRow["Cantidad"].ToString(),
-                    IdAlmacen = int.Parse(dataRow["IdAlmacen"].ToString()),
-                    Estatus = dataRow["Estatus"].ToString(),
-                    FechaRegistro = dataRow["FechaRegistro"].ToString(),
-                    UsuarioRegistra = dataRow["UsuarioRegistra"].ToString()
-                })
-                .ToList();
-        }
-    }
-    catch (Exception ex)
-    {
-        throw ex;
-    }
+            ConexionDataAccess dac = new ConexionDataAccess(connection);
+            List<GetExistenciasModel> lista = new List<GetExistenciasModel>();
+            
+            try
+            {
+                ArrayList parametros = new ArrayList();
 
-    return lista;
-}
+                if (fechaInicio.HasValue)
+                    parametros.Add(new SqlParameter("@fechaInicio", fechaInicio.Value));
+                
+                if (fechaFin.HasValue)
+                    parametros.Add(new SqlParameter("@fechaFin", fechaFin.Value));
+                
+                if (idAlmacen.HasValue)
+                    parametros.Add(new SqlParameter("@idAlmacen", idAlmacen.Value));
+
+                DataSet ds = dac.Fill("sp_get_existencia", parametros);
+
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+                    lista = ds.Tables[0].AsEnumerable()
+                        .Select(dataRow => new GetExistenciasModel
+                        {
+                            Id = int.Parse(dataRow["Id"].ToString()),
+                            Fecha = dataRow["Fecha"].ToString(),
+                            Insumo = dataRow["Insumo"].ToString(),
+                            DescripcionInsumo = dataRow["DescripcionInsumo"].ToString(),
+                            Cantidad = dataRow["Cantidad"].ToString(),
+                            IdAlmacen = int.Parse(dataRow["IdAlmacen"].ToString()),
+                            Estatus = dataRow["Estatus"].ToString(),
+                            FechaRegistro = dataRow["FechaRegistro"].ToString(),
+                            UsuarioRegistra = dataRow["UsuarioRegistra"].ToString()
+                        })
+                        .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return lista;
+        }
 
 
         public string InsertExistencias(InsertExistenciasModel Existencias)
