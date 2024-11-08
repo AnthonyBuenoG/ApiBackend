@@ -5,7 +5,7 @@ namespace reportesApi.Models
     {
         public int Id {get; set;}
         public string Nombre { get; set; }
-        public int EntradaSalida { get; set; }
+        public string EntradaSalida { get; set; }
         public string Estatus { get; set; }
         public string FechaRegistro { get; set; }
         public string UsuarioRegistra { get; set; }

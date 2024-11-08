@@ -47,7 +47,7 @@ namespace reportesApi.Services
                     .Select(dataRow => new GetTipoMovimientoModel {
                         Id = int.Parse(dataRow["Id"].ToString()),
                         Nombre = dataRow["Nombre"].ToString(),
-                        EntradaSalida = int.Parse(dataRow["EntradaSalida"].ToString()),
+                        EntradaSalida = dataRow["EntradaSalida"].ToString(),
                         Estatus = dataRow["Estatus"].ToString(),
                         FechaRegistro = dataRow["FechaRegistro"].ToString(),
                         UsuarioRegistra = dataRow["UsuarioRegistra"].ToString(),
