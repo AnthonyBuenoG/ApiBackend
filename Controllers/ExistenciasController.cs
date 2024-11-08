@@ -13,6 +13,8 @@ using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using Microsoft.AspNetCore.Hosting;
 using reportesApi.Models.Compras;
+using ClosedXML.Excel;
+
 
 namespace reportesApi.Controllers
 {
@@ -63,34 +65,135 @@ namespace reportesApi.Controllers
             return new JsonResult(objectResponse);
         }
 
-         [HttpGet("GetExistencias")]
-        public IActionResult GetExistencias()
+        //  [HttpGet("GetExistencias")]
+        // public IActionResult GetExistencias()
+        // {
+        //     var objectResponse = Helper.GetStructResponse();
+
+        //     try
+        //     {
+        //         objectResponse.StatusCode = (int)HttpStatusCode.OK;
+        //         objectResponse.success = true;
+        //         objectResponse.message = "Data cargados exitosamente";
+        //         var resultado = _ExistenciasService.GetExistencias();
+               
+               
+
+        //         // Llamando a la función y recibiendo los dos valores.
+               
+        //          objectResponse.response = resultado;
+        //     }
+
+        //     catch (System.Exception ex)
+        //     {
+        //         objectResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
+        //         objectResponse.success = false;
+        //         objectResponse.message = ex.Message;
+        //     }
+
+        //     return new JsonResult(objectResponse);
+        // }
+
+        // Método para obtener existencias con filtros opcionales
+    [HttpGet("GetExistencias")]
+    public IActionResult GetExistencias(DateTime? fechaInicio = null, DateTime? fechaFin = null, int? idAlmacen = null)
+    {
+        var objectResponse = Helper.GetStructResponse();
+
+        try
         {
-            var objectResponse = Helper.GetStructResponse();
+            // Llamar al servicio con los filtros opcionales
+            var resultado = _ExistenciasService.GetExistencias(fechaInicio, fechaFin, idAlmacen);
 
-            try
-            {
-                objectResponse.StatusCode = (int)HttpStatusCode.OK;
-                objectResponse.success = true;
-                objectResponse.message = "Data cargados exitosamente";
-                var resultado = _ExistenciasService.GetExistencias();
-               
-               
-
-                // Llamando a la función y recibiendo los dos valores.
-               
-                 objectResponse.response = resultado;
-            }
-
-            catch (System.Exception ex)
-            {
-                objectResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
-                objectResponse.success = false;
-                objectResponse.message = ex.Message;
-            }
-
-            return new JsonResult(objectResponse);
+            objectResponse.StatusCode = (int)HttpStatusCode.OK;
+            objectResponse.success = true;
+            objectResponse.message = "Datos cargados exitosamente";
+            objectResponse.response = resultado;
         }
+        catch (System.Exception ex)
+        {
+            objectResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
+            objectResponse.success = false;
+            objectResponse.message = ex.Message;
+        }
+
+        return new JsonResult(objectResponse);
+    }
+
+    // Método para exportar existencias a Excel con filtros opcionales
+[HttpGet("ExportarExistenciasExcel")]
+public IActionResult ExportarExistenciasExcel(
+    DateTime? fechaInicio = null,
+    DateTime? fechaFin = null,
+    int? idAlmacen = null,
+    bool filtrarPorFecha = false,
+    bool filtrarPorIdAlmacen = false)
+{
+    try
+    {
+        // Validación de filtros: si el usuario elige filtrar por fechas, deben proporcionar ambas fechas
+        if (filtrarPorFecha && (!fechaInicio.HasValue || !fechaFin.HasValue))
+        {
+            return BadRequest(new { success = false, message = "Debe proporcionar tanto fechaInicio como fechaFin para el filtrado por fechas." });
+        }
+
+        // Llamar al servicio con los filtros aplicados
+        var datos = _ExistenciasService.GetExistencias(
+            filtrarPorFecha ? fechaInicio : null,
+            filtrarPorFecha ? fechaFin : null,
+            filtrarPorIdAlmacen ? idAlmacen : null);
+
+        using (var workbook = new XLWorkbook())
+        {
+            var worksheet = workbook.Worksheets.Add("Existencias");
+
+            // Encabezados
+            worksheet.Cell(1, 1).Value = "ID";
+            worksheet.Cell(1, 2).Value = "Fecha";
+            worksheet.Cell(1, 3).Value = "Insumo";
+            worksheet.Cell(1, 4).Value = "Descripción Insumo";
+            worksheet.Cell(1, 5).Value = "Cantidad";
+            worksheet.Cell(1, 6).Value = "ID Almacén";
+            worksheet.Cell(1, 7).Value = "Estatus";
+            worksheet.Cell(1, 8).Value = "Fecha Registro";
+            worksheet.Cell(1, 9).Value = "Usuario Registra";
+
+            // Llenado de datos
+            for (int i = 0; i < datos.Count; i++)
+            {
+                worksheet.Cell(i + 2, 1).Value = datos[i].Id;
+                worksheet.Cell(i + 2, 2).Value = datos[i].Fecha;
+                worksheet.Cell(i + 2, 3).Value = datos[i].Insumo;
+                worksheet.Cell(i + 2, 4).Value = datos[i].DescripcionInsumo;
+                worksheet.Cell(i + 2, 5).Value = datos[i].Cantidad;
+                worksheet.Cell(i + 2, 6).Value = datos[i].IdAlmacen;
+                worksheet.Cell(i + 2, 7).Value = datos[i].Estatus;
+                worksheet.Cell(i + 2, 8).Value = datos[i].FechaRegistro;
+                worksheet.Cell(i + 2, 9).Value = datos[i].UsuarioRegistra;
+            }
+
+            // Ajustar ancho de columnas automáticamente
+            worksheet.Columns().AdjustToContents();
+
+            using (var stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+
+                return File(
+                    content,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "ReporteExistencias.xlsx");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        return StatusCode((int)HttpStatusCode.InternalServerError, new { success = false, message = ex.Message });
+    }
+}
+
+
 
         [HttpPut("UpdateExistencias")]
         public IActionResult UpdateExistencias([FromBody] UpdateExistenciasModel req )
