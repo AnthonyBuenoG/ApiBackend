@@ -147,29 +147,46 @@ public IActionResult ExportarExistenciasExcel(
         {
             var worksheet = workbook.Worksheets.Add("Existencias");
 
-            // Encabezados
-            worksheet.Cell(1, 1).Value = "ID";
-            worksheet.Cell(1, 2).Value = "Fecha";
-            worksheet.Cell(1, 3).Value = "Insumo";
-            worksheet.Cell(1, 4).Value = "Descripción Insumo";
-            worksheet.Cell(1, 5).Value = "Cantidad";
-            worksheet.Cell(1, 6).Value = "ID Almacén";
-            worksheet.Cell(1, 7).Value = "Estatus";
-            worksheet.Cell(1, 8).Value = "Fecha Registro";
-            worksheet.Cell(1, 9).Value = "Usuario Registra";
+            // Encabezado del reporte con rango de fechas (si aplica)
+            string titulo = "Reporte de existencias";
+            if (filtrarPorFecha && fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                titulo += $" del {fechaInicio.Value:yyyy-MM-dd} al {fechaFin.Value:yyyy-MM-dd}";
+            }
+            worksheet.Cell(1, 1).Value = titulo;
+            worksheet.Range("A1:I1").Merge().Style.Font.SetBold().Font.FontSize = 14;
+            worksheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            // Estilo de los encabezados
+            worksheet.Cell(2, 1).Value = "ID";
+            worksheet.Cell(2, 2).Value = "Fecha";
+            worksheet.Cell(2, 3).Value = "Insumo";
+            worksheet.Cell(2, 4).Value = "Descripción Insumo";
+            worksheet.Cell(2, 5).Value = "Cantidad";
+            worksheet.Cell(2, 6).Value = "ID Almacén";
+            worksheet.Cell(2, 7).Value = "Estatus";
+            worksheet.Cell(2, 8).Value = "Fecha Registro";
+            worksheet.Cell(2, 9).Value = "Usuario Registra";
+
+            for (int col = 1; col <= 9; col++)
+            {
+                worksheet.Cell(2, col).Style.Font.SetBold();
+                worksheet.Cell(2, col).Style.Fill.BackgroundColor = XLColor.LightGray;
+                worksheet.Cell(2, col).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            }
 
             // Llenado de datos
             for (int i = 0; i < datos.Count; i++)
             {
-                worksheet.Cell(i + 2, 1).Value = datos[i].Id;
-                worksheet.Cell(i + 2, 2).Value = datos[i].Fecha;
-                worksheet.Cell(i + 2, 3).Value = datos[i].Insumo;
-                worksheet.Cell(i + 2, 4).Value = datos[i].DescripcionInsumo;
-                worksheet.Cell(i + 2, 5).Value = datos[i].Cantidad;
-                worksheet.Cell(i + 2, 6).Value = datos[i].IdAlmacen;
-                worksheet.Cell(i + 2, 7).Value = datos[i].Estatus;
-                worksheet.Cell(i + 2, 8).Value = datos[i].FechaRegistro;
-                worksheet.Cell(i + 2, 9).Value = datos[i].UsuarioRegistra;
+                worksheet.Cell(i + 3, 1).Value = datos[i].Id;
+                worksheet.Cell(i + 3, 2).Value = datos[i].Fecha;
+                worksheet.Cell(i + 3, 3).Value = datos[i].Insumo;
+                worksheet.Cell(i + 3, 4).Value = datos[i].DescripcionInsumo;
+                worksheet.Cell(i + 3, 5).Value = datos[i].Cantidad;
+                worksheet.Cell(i + 3, 6).Value = datos[i].IdAlmacen;
+                worksheet.Cell(i + 3, 7).Value = datos[i].Estatus;
+                worksheet.Cell(i + 3, 8).Value = datos[i].FechaRegistro;
+                worksheet.Cell(i + 3, 9).Value = datos[i].UsuarioRegistra;
             }
 
             // Ajustar ancho de columnas automáticamente
