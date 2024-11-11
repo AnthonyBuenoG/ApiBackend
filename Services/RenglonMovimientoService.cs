@@ -66,42 +66,90 @@ namespace reportesApi.Services
         //     }
         //     return lista;
         // }
-                 public List<GetRenglonMovimientosModel> GetRenglonMovimimentos(int IdMovimiento)
+        //          public List<GetRenglonMovimientosModel> GetRenglonMovimimentos(int IdMovimiento)
+        // {
+
+        //     ConexionDataAccess dac = new ConexionDataAccess(connection);
+        //     parametros = new ArrayList();
+        //     parametros.Add(new SqlParameter { ParameterName = "@IdMovimiento", SqlDbType = SqlDbType.Int, Value = IdMovimiento });
+
+        //     List<GetRenglonMovimientosModel> lista = new List<GetRenglonMovimientosModel>();
+        //     try
+        //     {
+        //         DataSet ds = dac.Fill("sp_get_renglonesmovimientos", parametros);
+        //         if (ds.Tables[0].Rows.Count > 0)
+        //         {
+
+        //           lista = ds.Tables[0].AsEnumerable()
+        //             .Select(dataRow => new GetRenglonMovimientosModel {
+        //                 Id = int.Parse(dataRow["Id"].ToString()),
+        //                 IdMovimiento = int.Parse(dataRow["IdMovimiento"].ToString()),
+        //                 Insumo = dataRow["Insumo"].ToString(),
+        //                 DescripcionInsumo = dataRow["DescripcionInsumo"].ToString(),
+        //                 Cantidad = decimal.Parse(dataRow["Cantidad"].ToString()),
+        //                 Costo = decimal.Parse(dataRow["Costo"].ToString()),
+        //                 Estatus = dataRow["Estatus"].ToString(),
+        //                 FechaRegistro = dataRow["FechaRegistro"].ToString(),
+        //                 UsuarioRegistra = dataRow["UsuarioRegistra"].ToString(),
+
+        //             }).ToList();
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Console.WriteLine(ex.Message);
+        //         throw ex;
+        //     }
+        //     return lista;
+        // }
+
+           public List<GetRenglonMovimientosModel> GetRenglonMovimimentos(DateTime? fechaInicio = null, DateTime? fechaFin = null)
         {
-
             ConexionDataAccess dac = new ConexionDataAccess(connection);
-            parametros = new ArrayList();
-            parametros.Add(new SqlParameter { ParameterName = "@IdMovimiento", SqlDbType = SqlDbType.Int, Value = IdMovimiento });
-
             List<GetRenglonMovimientosModel> lista = new List<GetRenglonMovimientosModel>();
+            
             try
             {
+                ArrayList parametros = new ArrayList();
+
+                if (fechaInicio.HasValue)
+                    parametros.Add(new SqlParameter("@FechaInicio", fechaInicio.Value));
+                
+                if (fechaFin.HasValue)
+                    parametros.Add(new SqlParameter("@FechaFin", fechaFin.Value));
+                
+
                 DataSet ds = dac.Fill("sp_get_renglonesmovimientos", parametros);
+
                 if (ds.Tables[0].Rows.Count > 0)
                 {
+                    lista = ds.Tables[0].AsEnumerable()
+                        .Select(dataRow => new GetRenglonMovimientosModel
+                        {
+                            Id = int.Parse(dataRow["Id"].ToString()),
+                            IdMovimiento = int.Parse(dataRow["IdMovimiento"].ToString()),
+                            Nombre = dataRow["Nombre"].ToString(),
+                            Insumo = dataRow["Insumo"].ToString(),
+                            DescripcionInsumo = dataRow["DescripcionInsumo"].ToString(),
+                            Cantidad = decimal.Parse(dataRow["Cantidad"].ToString()),
+                            Costo = decimal.Parse(dataRow["Costo"].ToString()),
+                            CostoTotal = dataRow["CostoTotal"].ToString(),
+                            Estatus = dataRow["Estatus"].ToString(),
+                            FechaRegistro = dataRow["FechaRegistro"].ToString(),
+                            UsuarioRegistra = dataRow["UsuarioRegistra"].ToString(),
 
-                  lista = ds.Tables[0].AsEnumerable()
-                    .Select(dataRow => new GetRenglonMovimientosModel {
-                        Id = int.Parse(dataRow["Id"].ToString()),
-                        IdMovimiento = int.Parse(dataRow["IdMovimiento"].ToString()),
-                        Insumo = dataRow["Insumo"].ToString(),
-                        DescripcionInsumo = dataRow["DescripcionInsumo"].ToString(),
-                        Cantidad = decimal.Parse(dataRow["Cantidad"].ToString()),
-                        Costo = decimal.Parse(dataRow["Costo"].ToString()),
-                        Estatus = dataRow["Estatus"].ToString(),
-                        FechaRegistro = dataRow["FechaRegistro"].ToString(),
-                        UsuarioRegistra = dataRow["UsuarioRegistra"].ToString(),
-
-                    }).ToList();
+                        })
+                        .ToList();
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
                 throw ex;
             }
+
             return lista;
         }
+
 
         public string InsertRenglonMovimientos(InsertRenglonMovimientosModel RenglonMovimientos)
         {

@@ -13,6 +13,8 @@ using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using Microsoft.AspNetCore.Hosting;
 using reportesApi.Models.Compras;
+using ClosedXML.Excel;
+
 
 namespace reportesApi.Controllers
 {
@@ -63,34 +65,120 @@ namespace reportesApi.Controllers
             return new JsonResult(objectResponse);
         }
 
-        [HttpGet("GetRenglonMovimientos")]
-        public IActionResult GetRenglonMovimientos([FromQuery] int IdMovimiento)
-        {
-            var objectResponse = Helper.GetStructResponse();
+        // [HttpGet("GetRenglonMovimientos")]
+        // public IActionResult GetRenglonMovimientos([FromQuery] int IdMovimiento)
+        // {
+        //     var objectResponse = Helper.GetStructResponse();
 
+        //     try
+        //     {
+        //         objectResponse.StatusCode = (int)HttpStatusCode.OK;
+        //         objectResponse.success = true;
+        //         objectResponse.message = "DetalleEntradas cargados con exito";
+        //         var resultado = _RenglonMovimientos.GetRenglonMovimimentos(IdMovimiento);
+               
+               
+
+        //         // Llamando a la función y recibiendo los dos valores.
+               
+        //          objectResponse.response = resultado;
+        //     }
+
+        //     catch (System.Exception ex)
+        //     {
+        //         objectResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
+        //         objectResponse.success = false;
+        //         objectResponse.message = ex.Message;
+        //     }
+
+        //     return new JsonResult(objectResponse);
+        // }
+
+        [HttpGet("ExcelRenglonesMovimientos")]
+        public IActionResult ExportarRenglonMovimientoExcel(
+            DateTime? fechaInicio = null,
+            DateTime? fechaFin = null,
+            bool filtrarPorFecha = false,
+            bool filtrarPorIdAlmacen = false)
+        {
             try
             {
-                objectResponse.StatusCode = (int)HttpStatusCode.OK;
-                objectResponse.success = true;
-                objectResponse.message = "DetalleEntradas cargados con exito";
-                var resultado = _RenglonMovimientos.GetRenglonMovimimentos(IdMovimiento);
-               
-               
+                if (filtrarPorFecha && (!fechaInicio.HasValue || !fechaFin.HasValue))
+                {
+                    return BadRequest(new { success = false, message = "Debe proporcionar tanto fechaInicio como fechaFin para el filtrado por fechas." });
+                }
 
-                // Llamando a la función y recibiendo los dos valores.
-               
-                 objectResponse.response = resultado;
+                var datos = _RenglonMovimientos.GetRenglonMovimimentos(
+                    filtrarPorFecha ? fechaInicio : null,
+                    filtrarPorFecha ? fechaFin : null);
+
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("RenglonMovimiento");
+
+                    string titulo = "Reporte de Renglon Movimiento";
+                    if (filtrarPorFecha && fechaInicio.HasValue && fechaFin.HasValue)
+                    {
+                        titulo += $" del {fechaInicio.Value:yyyy-MM-dd} al {fechaFin.Value:yyyy-MM-dd}";
+                    }
+                    worksheet.Cell(1, 1).Value = titulo;
+                    worksheet.Range("A1:I1").Merge().Style.Font.SetBold().Font.FontSize = 14;
+                    worksheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                    worksheet.Cell(2, 1).Value = "ID";
+                    worksheet.Cell(2, 2).Value = "IdMovimiento";
+                    worksheet.Cell(2, 3).Value = "Nombre";
+                    worksheet.Cell(2, 4).Value = "Insumo";
+                    worksheet.Cell(2, 5).Value = "Descripción Insumo";
+                    worksheet.Cell(2, 6).Value = "Cantidad";
+                    worksheet.Cell(2, 7).Value = "Costo";
+                    worksheet.Cell(2, 8).Value = "CostoTotal";
+                    worksheet.Cell(2, 9).Value = "Estatus";
+                    worksheet.Cell(2, 10).Value = "Fecha Registro";
+                    worksheet.Cell(2, 11).Value = "Usuario Registra";
+
+                    for (int col = 1; col <= 9; col++)
+                    {
+                        worksheet.Cell(2, col).Style.Font.SetBold();
+                        worksheet.Cell(2, col).Style.Fill.BackgroundColor = XLColor.BabyBlue;
+                        worksheet.Cell(2, col).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    }
+
+                    for (int i = 0; i < datos.Count; i++)
+                    {
+                        worksheet.Cell(i + 3, 1).Value = datos[i].Id;
+                        worksheet.Cell(i + 3, 2).Value = datos[i].IdMovimiento;
+                        worksheet.Cell(i + 3, 2).Value = datos[i].Nombre;
+                        worksheet.Cell(i + 3, 4).Value = datos[i].Insumo;
+                        worksheet.Cell(i + 3, 5).Value = datos[i].DescripcionInsumo;
+                        worksheet.Cell(i + 3, 6).Value = datos[i].Cantidad;
+                        worksheet.Cell(i + 3, 7).Value = datos[i].Costo;
+                        worksheet.Cell(i + 3, 8).Value = datos[i].CostoTotal;
+                        worksheet.Cell(i + 3, 9).Value = datos[i].Estatus;
+                        worksheet.Cell(i + 3, 10).Value = datos[i].FechaRegistro;
+                        worksheet.Cell(i + 3, 11).Value = datos[i].UsuarioRegistra;
+                    }
+
+                    worksheet.Columns().AdjustToContents();
+
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        var content = stream.ToArray();
+
+                        return File(
+                            content,
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "ReporteExistencias.xlsx");
+                    }
+                }
             }
-
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                objectResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
-                objectResponse.success = false;
-                objectResponse.message = ex.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, new { success = false, message = ex.Message });
             }
-
-            return new JsonResult(objectResponse);
         }
+
 
         [HttpPut("UpdateRenglonMovimientos")]
         public IActionResult UpdateRenglonMovimientos([FromBody] UpdateRenglonMovimientosModel req )
