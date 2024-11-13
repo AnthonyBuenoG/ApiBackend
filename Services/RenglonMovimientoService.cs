@@ -103,7 +103,7 @@ namespace reportesApi.Services
         //     return lista;
         // }
 
-           public List<GetRenglonMovimientosModel> GetRenglonMovimimentos(DateTime? fechaInicio = null, DateTime? fechaFin = null)
+        public List<GetRenglonMovimientosModel> GetRenglonMovimimentos(DateTime? fechaInicio = null, DateTime? fechaFin = null)
         {
             ConexionDataAccess dac = new ConexionDataAccess(connection);
             List<GetRenglonMovimientosModel> lista = new List<GetRenglonMovimientosModel>();
@@ -128,7 +128,7 @@ namespace reportesApi.Services
                         {
                             Id = int.Parse(dataRow["Id"].ToString()),
                             IdMovimiento = int.Parse(dataRow["IdMovimiento"].ToString()),
-                            Nombre = dataRow["Nombre"].ToString(),
+                            Nombre = dataRow["TipoMovimientoNombre"].ToString(),
                             Insumo = dataRow["Insumo"].ToString(),
                             DescripcionInsumo = dataRow["DescripcionInsumo"].ToString(),
                             Cantidad = decimal.Parse(dataRow["Cantidad"].ToString()),
