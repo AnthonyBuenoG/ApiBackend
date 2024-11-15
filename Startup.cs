@@ -66,7 +66,7 @@ namespace reportesApi
             services.AddSingleton<TipoMovimientoService>();
             services.AddSingleton<MovimientosService>();
             services.AddSingleton<RenglonMovimientoService>();
-
+            services.AddSingleton<TRSPService>();
             services.AddSingleton<RecetasService>();
             services.AddSingleton<DetalleRecetaService>();
             services.AddSingleton<OrdenCompraService>();
