@@ -49,7 +49,7 @@ namespace reportesApi.Controllers
             return new JsonResult(objectResponse);
         }
 
-        [HttpGet("GetTRSPTransferencias")]
+        [HttpGet("GetTRSP")]
         public IActionResult GetTRSPTransferencias(int? almacenOrigen = null, int? almacenDestino = null, DateTime? fechaInicio = null, DateTime? fechaFin = null, int? tipoMovimiento = null)
         {
             var objectResponse = Helper.GetStructResponse();
@@ -179,6 +179,49 @@ namespace reportesApi.Controllers
             return new JsonResult(objectResponse);
         }
     }
+
+      [HttpPut("UpdateTRSP")]
+        public IActionResult UpdateTRSPTransferncia([FromBody] UpdateTRSPModel req )
+        {
+            var objectResponse = Helper.GetStructResponse();
+            try
+            {
+                objectResponse.StatusCode = (int)HttpStatusCode.OK;
+                objectResponse.success = true;
+                objectResponse.message = _TRSPService.UpdateTRSPTransferncia(req);
+
+                ;
+
+            }
+
+            catch (System.Exception ex)
+            {
+                objectResponse.message = ex.Message;
+            }
+
+            return new JsonResult(objectResponse);
+        }
+        [HttpDelete("DeleteTRSP/{id}")]
+        public IActionResult DeleteTRSPTransferencias([FromRoute] int id )
+        {
+            var objectResponse = Helper.GetStructResponse();
+            try
+            {
+                objectResponse.StatusCode = (int)HttpStatusCode.OK;
+                objectResponse.success = true;
+                objectResponse.message = "data cargado con exito";
+
+                _TRSPService.DeleteTRSPTransferencia(id);
+
+            }
+
+            catch (System.Exception ex)
+            {
+                objectResponse.message = ex.Message;
+            }
+
+            return new JsonResult(objectResponse);
+        }
 
 
     } 
