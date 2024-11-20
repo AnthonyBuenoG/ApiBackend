@@ -26,14 +26,13 @@ namespace reportesApi.Services
             _webHostEnvironment = webHostEnvironment;
         }
 
-    public List<GetTRSPModel> GetTRSPTransferencias(int? almacenOrigen = null, int? almacenDestino = null, DateTime? fechaInicio = null, DateTime? fechaFin = null, int? tipoMovimiento = null)
+    public List<GetTRSPModel> GetTRSPTransferencias(int? almacen = null, DateTime? fechaInicio = null, DateTime? fechaFin = null, int? tipoMovimiento = null)
     {
         ConexionDataAccess dac = new ConexionDataAccess(connection);
         List<GetTRSPModel> lista = new List<GetTRSPModel>();
         parametros = new ArrayList
         {
-            new SqlParameter { ParameterName = "@AlmacenOrigen", SqlDbType = SqlDbType.Int, Value = (object)almacenOrigen ?? DBNull.Value },
-            new SqlParameter { ParameterName = "@AlmacenDestino", SqlDbType = SqlDbType.Int, Value = (object)almacenDestino ?? DBNull.Value },
+            new SqlParameter { ParameterName = "@Almacen", SqlDbType = SqlDbType.Int, Value = (object)almacen ?? DBNull.Value },
             new SqlParameter { ParameterName = "@FechaInicio", SqlDbType = SqlDbType.DateTime, Value = (object)fechaInicio ?? DBNull.Value },
             new SqlParameter { ParameterName = "@FechaFin", SqlDbType = SqlDbType.DateTime, Value = (object)fechaFin ?? DBNull.Value },
             new SqlParameter { ParameterName = "@TipoMovimiento", SqlDbType = SqlDbType.Int, Value = (object)tipoMovimiento ?? DBNull.Value }
@@ -121,6 +120,94 @@ namespace reportesApi.Services
         return lista;
     }
 
+    //         public List<GetEntradaSalidaTRSPPModel> GetEntradaSalidaTRSPTransferencias(string tipoMovimiento)
+    // {
+    //     ConexionDataAccess dac = new ConexionDataAccess(connection);
+    //     List<GetEntradaSalidaTRSPPModel> lista = new List<GetEntradaSalidaTRSPPModel>();
+    //     parametros = new ArrayList
+    //     {
+    //         parametros.Add(new SqlParameter { ParameterName = "@TipoMovimiento", SqlDbType = SqlDbType.VarChar, Value = tipoMovimiento }),
+        
+    //     };
+
+    //     try
+    //     {
+    //         DataSet ds = dac.Fill("sp_get_TRSP_entradasalida", parametros);
+    //         if (ds.Tables[0].Rows.Count > 0)
+    //         {
+    //             lista = ds.Tables[0].AsEnumerable().Select(dataRow => new GetEntradaSalidaTRSPPModel
+    //             {
+    //                 IdTRSP = dataRow["IdTRSP"].ToString(),
+    //                 AlmacenOrigen = dataRow["AlmacenOrigen"].ToString(),
+    //                 NombreAlmacenOrgien = dataRow["NombreAlmacenOrgien"].ToString(),
+    //                 AlmacenDestino = dataRow["AlmacenDestino"].ToString(),
+    //                 NombreAlmacenDestino = dataRow["NombreAlmacenDestino"].ToString(),
+    //                 IdInsumo = dataRow["IdInsumo"].ToString(),
+    //                 DescripcionInsumo = dataRow["DescripcionInsumo"].ToString(),
+    //                 FechaEntrada = dataRow["FechaEntrada"].ToString(),
+    //                 FechaSalida = dataRow["FechaSalida"].ToString(),
+    //                 Cantidad = dataRow["Cantidad"].ToString(),
+    //                 TipoMovimiento = dataRow["TipoMovimiento"].ToString(),
+    //                 Descripcion = dataRow["Descripcion"].ToString(),
+    //                 NoFolio = dataRow["No_Folio"].ToString(),
+    //                 FechaRegistro = dataRow["FechaRegistro"].ToString(),
+    //                 Estatus = dataRow["Estatus"].ToString(),
+    //                 UsuarioRegistra = dataRow["UsuarioRegistra"].ToString()
+    //             }).ToList();
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         throw ex;
+    //     }
+
+    //     return lista;
+    // }
+
+
+
+         public List<GetEntradaSalidaTRSPPModel> GetEntradaSalidaTRSP(int tipoMovimiento)
+        {
+
+            ConexionDataAccess dac = new ConexionDataAccess(connection);
+            parametros = new ArrayList();
+            parametros.Add(new SqlParameter { ParameterName = "@TipoMovimiento", SqlDbType = SqlDbType.Int, Value = tipoMovimiento });
+
+            List<GetEntradaSalidaTRSPPModel> lista = new List<GetEntradaSalidaTRSPPModel>();
+            try
+            {
+                DataSet ds = dac.Fill("sp_get_TRSP_entradasalida", parametros);
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+
+                  lista = ds.Tables[0].AsEnumerable()
+                    .Select(dataRow => new GetEntradaSalidaTRSPPModel {
+                    IdTRSP = dataRow["IdTRSP"].ToString(),
+                    AlmacenOrigen = dataRow["AlmacenOrigen"].ToString(),
+                    NombreAlmacenOrgien = dataRow["NombreAlmacenOrgien"].ToString(),
+                    AlmacenDestino = dataRow["AlmacenDestino"].ToString(),
+                    NombreAlmacenDestino = dataRow["NombreAlmacenDestino"].ToString(),
+                    IdInsumo = dataRow["IdInsumo"].ToString(),
+                    DescripcionInsumo = dataRow["DescripcionInsumo"].ToString(),
+                    FechaEntrada = dataRow["FechaEntrada"].ToString(),
+                    FechaSalida = dataRow["FechaSalida"].ToString(),
+                    Cantidad = dataRow["Cantidad"].ToString(),
+                    TipoMovimiento = dataRow["TipoMovimiento"].ToString(),
+                    Descripcion = dataRow["Descripcion"].ToString(),
+                    NoFolio = dataRow["No_Folio"].ToString(),
+                    FechaRegistro = dataRow["FechaRegistro"].ToString(),
+                    Estatus = dataRow["Estatus"].ToString(),
+                    UsuarioRegistra = dataRow["UsuarioRegistra"].ToString()
+                    }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw ex;
+            }
+            return lista;
+        }
 
     private string GenerarNoFolio()
     {
@@ -137,7 +224,7 @@ namespace reportesApi.Services
         ConexionDataAccess dac = new ConexionDataAccess(connection);
         parametros = new ArrayList();
 
-        string folioGenerado = GenerarNoFolio(); // Generar NoFolio automático
+        string folioGenerado = GenerarNoFolio();
 
         parametros.Add(new SqlParameter { ParameterName = "@AlmacenOrigen", SqlDbType = SqlDbType.Int, Value = trsp.AlmacenOrigen });
         parametros.Add(new SqlParameter { ParameterName = "@AlmacenDestino", SqlDbType = SqlDbType.Int, Value = trsp.AlmacenDestino });

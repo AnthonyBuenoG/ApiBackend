@@ -50,7 +50,7 @@ namespace reportesApi.Controllers
         }
 
         [HttpGet("GetTRSP")]
-        public IActionResult GetTRSPTransferencias(int? almacenOrigen = null, int? almacenDestino = null, DateTime? fechaInicio = null, DateTime? fechaFin = null, int? tipoMovimiento = null)
+        public IActionResult GetTRSPTransferencias(int? almacen = null, DateTime? fechaInicio = null, DateTime? fechaFin = null, int? tipoMovimiento = null)
         {
             var objectResponse = Helper.GetStructResponse();
             try
@@ -58,7 +58,7 @@ namespace reportesApi.Controllers
                 objectResponse.StatusCode = (int)HttpStatusCode.OK;
                 objectResponse.success = true;
                 objectResponse.message = "Transferencias obtenidas con éxito";
-                objectResponse.response = _TRSPService.GetTRSPTransferencias(almacenOrigen, almacenDestino, fechaInicio, fechaFin, tipoMovimiento);
+                objectResponse.response = _TRSPService.GetTRSPTransferencias( almacen, fechaInicio, fechaFin, tipoMovimiento);
             }
             catch (Exception ex)
             {
@@ -67,6 +67,37 @@ namespace reportesApi.Controllers
             return new JsonResult(objectResponse);
         }
 
+
+         [HttpGet("GetEntradaSalidaTRSP")]
+        public IActionResult GetEntradaSalidaTRSP([FromQuery] int tipoMovimiento)
+        {
+            var objectResponse = Helper.GetStructResponse();
+
+            try
+            {
+                objectResponse.StatusCode = (int)HttpStatusCode.OK;
+                objectResponse.success = true;
+                objectResponse.message = "Datos cargados exitosamente";
+                var resultado = _TRSPService.GetEntradaSalidaTRSP(tipoMovimiento);
+               
+               
+
+                // Llamando a la función y recibiendo los dos valores.
+               
+                 objectResponse.response = resultado;
+            }
+
+            catch (System.Exception ex)
+            {
+                objectResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
+                objectResponse.success = false;
+                objectResponse.message = ex.Message;
+            }
+
+            return new JsonResult(objectResponse);
+        }
+
+
             [HttpGet("GetReporteTRSP")]
     public IActionResult GetReporteTRSP(string? folio = null, bool download = false)
     {
@@ -74,10 +105,8 @@ namespace reportesApi.Controllers
 
         try
         {
-            // Llamar al servicio para obtener los datos según el folio
             var reportes = _TRSPService.GetReporteTRSPTransferencias(folio);
 
-            // Validar si los datos están vacíos
             if (reportes == null || reportes.Count == 0)
             {
                 objectResponse.StatusCode = (int)HttpStatusCode.NoContent;
@@ -85,20 +114,18 @@ namespace reportesApi.Controllers
                 return new JsonResult(objectResponse);
             }
 
-            if (download) // Generar y descargar el archivo Excel
+            if (download) 
             {
                 using (var workbook = new XLWorkbook())
                 {
                     var worksheet = workbook.Worksheets.Add("Reporte TRSP");
 
-                    // Título del reporte (Folio como encabezado)
                     worksheet.Cell(1, 1).Value = $"Reporte de Transferencias (Folio: {folio ?? "N/A"})";
                     worksheet.Cell(1, 1).Style.Font.Bold = true;
                     worksheet.Cell(1, 1).Style.Font.FontSize = 14;
-                    worksheet.Range(1, 1, 1, 18).Merge(); // Unir celdas para el encabezado
+                    worksheet.Range(1, 1, 1, 18).Merge(); 
                     worksheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-                    // Encabezados de columnas con diseño
                     var headers = new string[]
                     {
                         "ID TRSP", "Almacén Origen", "Nombre Almacén Origen", "Almacén Destino", "Nombre Almacén Destino",
@@ -111,12 +138,11 @@ namespace reportesApi.Controllers
                     {
                         worksheet.Cell(2, i + 1).Value = headers[i];
                         worksheet.Cell(2, i + 1).Style.Font.Bold = true;
-                        worksheet.Cell(2, i + 1).Style.Fill.BackgroundColor = XLColor.LightGray; // Fondo gris claro
+                        worksheet.Cell(2, i + 1).Style.Fill.BackgroundColor = XLColor.LightGray;
                         worksheet.Cell(2, i + 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                         worksheet.Cell(2, i + 1).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                     }
 
-                    // Llenar los datos en el Excel
                     int currentRow = 3;
                     foreach (var reporte in reportes)
                     {
@@ -139,7 +165,6 @@ namespace reportesApi.Controllers
                         worksheet.Cell(currentRow, 17).Value = reporte.Estatus;
                         worksheet.Cell(currentRow, 18).Value = reporte.UsuarioRegistra;
 
-                        // Aplicar bordes a cada celda
                         for (int col = 1; col <= headers.Length; col++)
                         {
                             worksheet.Cell(currentRow, col).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
@@ -147,22 +172,19 @@ namespace reportesApi.Controllers
                         currentRow++;
                     }
 
-                    // Ajustar el tamaño de las columnas automáticamente
                     worksheet.Columns().AdjustToContents();
 
-                    // Guardar el archivo en un MemoryStream
                     using (var stream = new MemoryStream())
                     {
                         workbook.SaveAs(stream);
-                        stream.Seek(0, SeekOrigin.Begin); // Asegurarse de que el puntero del flujo esté al inicio
+                        stream.Seek(0, SeekOrigin.Begin); 
                         var content = stream.ToArray();
 
-                        // Devolver el archivo Excel como un archivo descargable
                         return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"ReporteTraspasos.xlsx");
                     }
                 }
             }
-            else // Si no se solicita la descarga, devolver los datos en JSON
+            else
             {
                 objectResponse.StatusCode = (int)HttpStatusCode.OK;
                 objectResponse.success = true;
@@ -173,7 +195,6 @@ namespace reportesApi.Controllers
         }
         catch (Exception ex)
         {
-            // Manejo de errores
             objectResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
             objectResponse.message = $"Error: {ex.Message}";
             return new JsonResult(objectResponse);

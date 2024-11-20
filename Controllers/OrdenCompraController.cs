@@ -74,10 +74,6 @@ namespace reportesApi.Controllers
                 objectResponse.StatusCode = (int)HttpStatusCode.OK;
                 objectResponse.success = true;
                 objectResponse.message = "data cargado con exito";
-
-
-                // Llamando a la función y recibiendo los dos valores.
-                
                  objectResponse.response = resultado;
             }
 

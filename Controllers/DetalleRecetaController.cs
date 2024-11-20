@@ -43,7 +43,7 @@ namespace reportesApi.Controllers
         }
 
 
-        [HttpPost("Insert DetalleReceta")]
+        [HttpPost("InsertDetalleReceta")]
         public IActionResult InsertDetalleReceta([FromBody] InsertDetalleRecetaModel req )
         {
             var objectResponse = Helper.GetStructResponse();
