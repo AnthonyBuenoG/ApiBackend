@@ -25,6 +25,7 @@ namespace reportesApi.Services
             connection = settings.ConnectionString;
             _webHostEnvironment = webHostEnvironment;
         }
+
     public List<GetTRSPModel> GetTRSPTransferencias(int? almacenOrigen = null, int? almacenDestino = null, DateTime? fechaInicio = null, DateTime? fechaFin = null, int? tipoMovimiento = null)
     {
         ConexionDataAccess dac = new ConexionDataAccess(connection);
@@ -44,6 +45,52 @@ namespace reportesApi.Services
             if (ds.Tables[0].Rows.Count > 0)
             {
                 lista = ds.Tables[0].AsEnumerable().Select(dataRow => new GetTRSPModel
+                {
+                    IdTRSP = dataRow["IdTRSP"].ToString(),
+                    AlmacenOrigen = dataRow["AlmacenOrigen"].ToString(),
+                    NombreAlmacenOrgien = dataRow["NombreAlmacenOrgien"].ToString(),
+                    AlmacenDestino = dataRow["AlmacenDestino"].ToString(),
+                    NombreAlmacenDestino = dataRow["NombreAlmacenDestino"].ToString(),
+                    IdInsumo = dataRow["IdInsumo"].ToString(),
+                    DescripcionInsumo = dataRow["DescripcionInsumo"].ToString(),
+                    FechaEntrada = dataRow["FechaEntrada"].ToString(),
+                    FechaSalida = dataRow["FechaSalida"].ToString(),
+                    Cantidad = dataRow["Cantidad"].ToString(),
+                    TipoMovimiento = dataRow["TipoMovimiento"].ToString(),
+                    Descripcion = dataRow["Descripcion"].ToString(),
+                    NoFolio = dataRow["No_Folio"].ToString(),
+                    CantidadMovimientoOrigen = dataRow["CantidadMovimientoOrigen"].ToString(),
+                    CantidadMovimientoDestino = dataRow["CantidadMovimientoDestino"].ToString(),
+                    FechaRegistro = dataRow["FechaRegistro"].ToString(),
+                    Estatus = dataRow["Estatus"].ToString(),
+                    UsuarioRegistra = dataRow["UsuarioRegistra"].ToString()
+                }).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+
+        return lista;
+    }
+
+        public List<GetReporteTRSPModel> GetReporteTRSPTransferencias(string? folio = null)
+    {
+        ConexionDataAccess dac = new ConexionDataAccess(connection);
+        List<GetReporteTRSPModel> lista = new List<GetReporteTRSPModel>();
+        parametros = new ArrayList
+        {
+            new SqlParameter { ParameterName = "@Folio", SqlDbType = SqlDbType.VarChar, Value = (object)folio ?? DBNull.Value },
+        
+        };
+
+        try
+        {
+            DataSet ds = dac.Fill("sp_get_reporte_TRSP", parametros);
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                lista = ds.Tables[0].AsEnumerable().Select(dataRow => new GetReporteTRSPModel
                 {
                     IdTRSP = dataRow["IdTRSP"].ToString(),
                     AlmacenOrigen = dataRow["AlmacenOrigen"].ToString(),
@@ -116,6 +163,53 @@ namespace reportesApi.Services
 
         return folioGenerado;
     }
+
+      public string UpdateTRSPTransferncia(UpdateTRSPModel trsp)
+        {
+            ConexionDataAccess dac = new ConexionDataAccess(connection);
+            parametros = new ArrayList();
+            string mensaje;
+        parametros.Add(new SqlParameter { ParameterName = "@IdTRSP", SqlDbType = SqlDbType.Int, Value = trsp.IdTRSP });
+        parametros.Add(new SqlParameter { ParameterName = "@AlmacenOrigen", SqlDbType = SqlDbType.Int, Value = trsp.AlmacenOrigen });
+        parametros.Add(new SqlParameter { ParameterName = "@AlmacenDestino", SqlDbType = SqlDbType.Int, Value = trsp.AlmacenDestino });
+        parametros.Add(new SqlParameter { ParameterName = "@IdInsumo", SqlDbType = SqlDbType.Int, Value = trsp.IdInsumo });
+        parametros.Add(new SqlParameter { ParameterName = "@FechaEntrada", SqlDbType = SqlDbType.DateTime, Value = trsp.FechaEntrada });
+        parametros.Add(new SqlParameter { ParameterName = "@FechaSalida", SqlDbType = SqlDbType.DateTime, Value = trsp.FechaSalida });
+        parametros.Add(new SqlParameter { ParameterName = "@Cantidad", SqlDbType = SqlDbType.Int, Value = trsp.Cantidad });
+        parametros.Add(new SqlParameter { ParameterName = "@TipoMovimiento", SqlDbType = SqlDbType.Int, Value = trsp.TipoMovimiento });
+        parametros.Add(new SqlParameter { ParameterName = "@Descripcion", SqlDbType = SqlDbType.VarChar, Value = trsp.Descripcion });
+        parametros.Add(new SqlParameter { ParameterName = "@Estatus", SqlDbType = SqlDbType.Int, Value = trsp.Estatus });
+        parametros.Add(new SqlParameter { ParameterName = "@UsuarioRegistra", SqlDbType = SqlDbType.Int, Value = trsp.UsuarioRegistra });
+            try
+            {
+                DataSet ds = dac.Fill("sp_update_TRSP_Transferencia", parametros);
+                mensaje = ds.Tables[0].AsEnumerable().Select(dataRow => dataRow["mensaje"].ToString()).ToList()[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return mensaje;
+        }
+
+      public void DeleteTRSPTransferencia(int id)
+        {
+            ConexionDataAccess dac = new ConexionDataAccess(connection);
+            parametros = new ArrayList();
+            parametros.Add(new SqlParameter { ParameterName = "@IdTRSP", SqlDbType = SqlDbType.Int, Value = id });
+
+
+            try
+            {
+                dac.ExecuteNonQuery("sp_delete_TRSP_Transferencia", parametros);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         // // Método para actualizar una transferencia existente
         // public string UpdateTRSP(UpdateTRSPModel trsp)
