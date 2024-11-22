@@ -49,6 +49,29 @@ namespace reportesApi.Controllers
             return new JsonResult(objectResponse);
         }
 
+         [HttpPost("InsertOrgTRSP")]
+        public IActionResult InsertAlmacenOrgTRSP([FromBody] InsertTRSPRenglonModel req)
+        {
+            var objectResponse = Helper.GetStructResponse();
+
+            try
+            {
+                var folioGenerado = _TRSPService.InsertTRSPRenglonTransferencia(req);
+                objectResponse.StatusCode = (int)HttpStatusCode.OK;
+                objectResponse.success = true;
+                objectResponse.message = "Transferencia registrada con éxito";
+                objectResponse.response = new { FolioGenerado = folioGenerado };
+            }
+            catch (System.Exception ex)
+            {
+                objectResponse.message = ex.Message;
+            }
+
+            return new JsonResult(objectResponse);
+        }
+
+
+
         [HttpGet("GetTRSP")]
         public IActionResult GetTRSPTransferencias(int? almacen = null, DateTime? fechaInicio = null, DateTime? fechaFin = null, int? tipoMovimiento = null)
         {
@@ -59,6 +82,24 @@ namespace reportesApi.Controllers
                 objectResponse.success = true;
                 objectResponse.message = "Transferencias obtenidas con éxito";
                 objectResponse.response = _TRSPService.GetTRSPTransferencias( almacen, fechaInicio, fechaFin, tipoMovimiento);
+            }
+            catch (Exception ex)
+            {
+                objectResponse.message = ex.Message;
+            }
+            return new JsonResult(objectResponse);
+        }
+
+          [HttpGet("GetTRSPOrgFechas")]
+        public IActionResult GetTRSPOrgTransferencias(int? almacen = null, DateTime? fechaInicio = null, DateTime? fechaFin = null, int? tipoMovimiento = null)
+        {
+            var objectResponse = Helper.GetStructResponse();
+            try
+            {
+                objectResponse.StatusCode = (int)HttpStatusCode.OK;
+                objectResponse.success = true;
+                objectResponse.message = "Transferencias obtenidas con éxito";
+                objectResponse.response = _TRSPService.GetTRSPOrgTransferencias( almacen, fechaInicio, fechaFin, tipoMovimiento);
             }
             catch (Exception ex)
             {
@@ -79,6 +120,35 @@ namespace reportesApi.Controllers
                 objectResponse.success = true;
                 objectResponse.message = "Datos cargados exitosamente";
                 var resultado = _TRSPService.GetEntradaSalidaTRSP(tipoMovimiento);
+               
+               
+
+                // Llamando a la función y recibiendo los dos valores.
+               
+                 objectResponse.response = resultado;
+            }
+
+            catch (System.Exception ex)
+            {
+                objectResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
+                objectResponse.success = false;
+                objectResponse.message = ex.Message;
+            }
+
+            return new JsonResult(objectResponse);
+        }
+
+         [HttpGet("GetOrgTRSP")]
+        public IActionResult GetRenglonTRSP([FromQuery] int almacenOrigen)
+        {
+            var objectResponse = Helper.GetStructResponse();
+
+            try
+            {
+                objectResponse.StatusCode = (int)HttpStatusCode.OK;
+                objectResponse.success = true;
+                objectResponse.message = "Datos cargados exitosamente";
+                var resultado = _TRSPService.GetTRSPRenglon(almacenOrigen);
                
                
 
