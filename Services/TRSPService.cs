@@ -414,35 +414,5 @@ namespace reportesApi.Services
                 throw ex;
             }
         }
-
-
-        // // Método para actualizar una transferencia existente
-        // public string UpdateTRSP(UpdateTRSPModel trsp)
-        // {
-        //     ConexionDataAccess dac = new ConexionDataAccess(connection);
-        //     parametros = new ArrayList();
-
-        //     parametros.Add(new SqlParameter("@IdTRSP", trsp.IdTRSP));
-        //     parametros.Add(new SqlParameter("@AlmacenOrigen", trsp.AlmacenOrigen));
-        //     parametros.Add(new SqlParameter("@AlmacenDestino", trsp.AlmacenDestino));
-        //     parametros.Add(new SqlParameter("@IdInsumo", trsp.IdInsumo));
-        //     parametros.Add(new SqlParameter("@FechaEntrada", trsp.FechaEntrada));
-        //     parametros.Add(new SqlParameter("@FechaSalida", trsp.FechaSalida));
-        //     parametros.Add(new SqlParameter("@Cantidad", trsp.Cantidad));
-        //     parametros.Add(new SqlParameter("@TipoMovimiento", trsp.TipoMovimiento));
-        //     parametros.Add(new SqlParameter("@Descripcion", trsp.Descripcion));
-        //     parametros.Add(new SqlParameter("@Estatus", trsp.Estatus));
-        //     parametros.Add(new SqlParameter("@UsuarioRegistra", trsp.UsuarioRegistra));
-
-        //     try
-        //     {
-        //         dac.ExecuteNonQuery("sp_update_TRSP_Transferencia", parametros);
-        //         return "Transferencia actualizada correctamente.";
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         throw ex;
-        //     }
-        // }
     }
 }
