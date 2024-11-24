@@ -271,27 +271,29 @@ namespace reportesApi.Controllers
         }
     }
 
-      [HttpPut("UpdateTRSP")]
-        public IActionResult UpdateTRSPTransferncia([FromBody] UpdateTRSPModel req )
-        {
-            var objectResponse = Helper.GetStructResponse();
-            try
-            {
-                objectResponse.StatusCode = (int)HttpStatusCode.OK;
-                objectResponse.success = true;
-                objectResponse.message = _TRSPService.UpdateTRSPTransferncia(req);
+    //   [HttpPut("UpdateTRSP")]
+    //     public IActionResult UpdateTRSPTransferncia([FromBody] UpdateTRSPModel req )
+    //     {
+    //         var objectResponse = Helper.GetStructResponse();
+    //         try
+    //         {
+    //             objectResponse.StatusCode = (int)HttpStatusCode.OK;
+    //             objectResponse.success = true;
+    //             objectResponse.message = _TRSPService.UpdateTRSPTransferncia(req);
 
-                ;
+    //             ;
 
-            }
+    //         }
 
-            catch (System.Exception ex)
-            {
-                objectResponse.message = ex.Message;
-            }
+    //         catch (System.Exception ex)
+    //         {
+    //             objectResponse.message = ex.Message;
+    //         }
 
-            return new JsonResult(objectResponse);
-        }
+    //         return new JsonResult(objectResponse);
+    //     }
+
+
         [HttpDelete("DeleteTRSP/{id}")]
         public IActionResult DeleteTRSPTransferencias([FromRoute] int id )
         {
