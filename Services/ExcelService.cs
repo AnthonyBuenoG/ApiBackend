@@ -53,9 +53,6 @@ namespace reportesApi.Services
                             NombreReceta = dataRow["NombreReceta"].ToString(),
                             FechaCreacion = dataRow["FechaCreacion"].ToString(),
                             UsuarioRegistra = dataRow["UsuarioRegistra"].ToString(),
-                            Insumo = dataRow["Insumo"].ToString(),
-                            DescripcionInsumo = dataRow["DescripcionInsumo"].ToString(),
-                            Cantidad = dataRow["Cantidad"].ToString()
                         }).ToList();
                 }
             }
@@ -90,9 +87,7 @@ namespace reportesApi.Services
                             NombreReceta = dataRow["NombreReceta"].ToString(),
                             FechaCreacion = dataRow["FechaCreacion"].ToString(),
                             UsuarioRegistra = dataRow["UsuarioRegistra"].ToString(),
-                            Insumo = dataRow["Insumo"].ToString(),
-                            DescripcionInsumo = dataRow["DescripcionInsumo"].ToString(),
-                            Cantidad = dataRow["Cantidad"].ToString()
+                         
                         }).ToList();
                 }
             }
@@ -104,7 +99,7 @@ namespace reportesApi.Services
             return lista;
         }
 
-        public List<TraspasoEntradaModel> GetTraspasosEntrada(DateTime fechaInicio, DateTime fechaFin, int almacenDestino)
+        public List<TraspasoEntradaModel> GetTraspasosEntrada(DateTime fechaInicio, DateTime fechaFin, int almacen, int tipoMovimiento)
         {
             ConexionDataAccess dac = new ConexionDataAccess(connection);
             List<TraspasoEntradaModel> lista = new List<TraspasoEntradaModel>();
@@ -115,7 +110,9 @@ namespace reportesApi.Services
                 {
                     new SqlParameter("@FechaInicio", fechaInicio),
                     new SqlParameter("@FechaFin", fechaFin),
-                    new SqlParameter("@AlmacenDestino", almacenDestino)
+                    new SqlParameter("@Almacen", almacen),
+                    new SqlParameter("@TipoMovimiento", tipoMovimiento)
+
                 };
 
                 DataSet ds = dac.Fill("sp_ExportarTraspasosEntrada", parametros);
@@ -151,7 +148,7 @@ namespace reportesApi.Services
             return lista;
         }
 
-        public List<TraspasoSalidaModel> GetTraspasosSalida(DateTime fechaInicio, DateTime fechaFin, int almacenOrigen)
+        public List<TraspasoSalidaModel> GetTraspasosSalida(DateTime fechaInicio, DateTime fechaFin, int almacen, int tipoMovimiento)
         {
             ConexionDataAccess dac = new ConexionDataAccess(connection);
             List<TraspasoSalidaModel> lista = new List<TraspasoSalidaModel>();
@@ -162,7 +159,8 @@ namespace reportesApi.Services
                 {
                     new SqlParameter("@FechaInicio", fechaInicio),
                     new SqlParameter("@FechaFin", fechaFin),
-                    new SqlParameter("@AlmacenOrigen", almacenOrigen)
+                    new SqlParameter("@Almacen", almacen),
+                    new SqlParameter("@TipoMovimiento", tipoMovimiento)
                 };
 
                 DataSet ds = dac.Fill("sp_ExportarTraspasosEntrada", parametros);

@@ -45,9 +45,7 @@ public class ContenidoRecetaModel
     public string NombreReceta { get; set; }
     public string FechaCreacion { get; set; }
     public string UsuarioRegistra { get; set; }
-    public string Insumo { get; set; }
-    public string Cantidad { get; set; }
-    public string DescripcionInsumo { get; set; }
+  
 }
 
 public class RecetaRangoFechasModel
@@ -56,9 +54,8 @@ public class RecetaRangoFechasModel
     public string NombreReceta { get; set; }
     public string FechaCreacion { get; set; }
     public string UsuarioRegistra { get; set; }
-    public string Insumo { get; set; }
-    public string DescripcionInsumo { get; set; }
-    public string Cantidad { get; set; }
+  
+  
 }
 
 
