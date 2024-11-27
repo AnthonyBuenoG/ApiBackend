@@ -30,77 +30,223 @@ namespace reportesApi.Controllers
             _logger = logger;
         }
 
-   
-
-        [HttpGet("ExportarRecetas")]
-        public IActionResult ExportarRecetas(DateTime? FechaInicio = null, DateTime? FechaFin = null)
+        // 1. Reporte de Recetas por Rango de Fechas
+        [HttpGet("recetas-rango-fechas")]
+        public IActionResult GetRecetasPorRangoDeFechasExcel(DateTime fechaInicio, DateTime fechaFin)
         {
-            var objectResponse = Helper.GetStructResponse();
-
             try
             {
-                // Llamar al método para obtener las recetas según las fechas proporcionadas
-                var recetas = _excelService.GetRecetasPorRangoDeFechas(FechaInicio ?? DateTime.MinValue, FechaFin ?? DateTime.MaxValue);
+                var recetas = _excelService.GetRecetasPorRangoDeFechas(fechaInicio, fechaFin);
 
-                if (recetas == null || recetas.Count == 0)
+                using (var package = new ExcelPackage())
                 {
-                    objectResponse.StatusCode = (int)HttpStatusCode.NoContent;
-                    objectResponse.message = "No hay datos disponibles para exportar.";
-                    return new JsonResult(objectResponse);
-                }
+                    var worksheet = package.Workbook.Worksheets.Add("Recetas");
 
-                using (var workbook = new XLWorkbook())
-                {
-                    var worksheet = workbook.Worksheets.Add("Recetas");
+                    // Encabezado
+                    worksheet.Cells[1, 1].Value = "RecetaID";
+                    worksheet.Cells[1, 2].Value = "NombreReceta";
+                    worksheet.Cells[1, 3].Value = "FechaCreacion";
+                    worksheet.Cells[1, 4].Value = "UsuarioRegistra";
+                    worksheet.Row(1).Style.Font.Bold = true;
 
-                    // Encabezado con el rango de fechas
-                    var fechaInicioText = FechaInicio.HasValue ? FechaInicio.Value.ToString("yyyy-MM-dd") : "Inicio";
-                    var fechaFinText = FechaFin.HasValue ? FechaFin.Value.ToString("yyyy-MM-dd") : "Fin";
-                    worksheet.Cell(1, 1).Value = $"Reporte de recetas {fechaInicioText} al {fechaFinText}";
-                    worksheet.Range(1, 1, 1, 4).Merge().Style
-                        .Font.SetBold(true)
-                        .Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-
-                    // Encabezados de columnas
-                    var headers = new string[] { "ID Receta", "Nombre Receta", "Fecha Creación", "Usuario Registra" };
-                    for (int i = 0; i < headers.Length; i++)
-                    {
-                        worksheet.Cell(2, i + 1).Value = headers[i];
-                        worksheet.Cell(2, i + 1).Style.Font.Bold = true;
-                        worksheet.Cell(2, i + 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    }
-
-                    // Llenar los datos de las recetas en el archivo Excel
-                    int currentRow = 3;
+                    // Datos
+                    int row = 2;
                     foreach (var receta in recetas)
                     {
-                        worksheet.Cell(currentRow, 1).Value = receta.RecetaID;
-                        worksheet.Cell(currentRow, 2).Value = receta.NombreReceta;
-                        worksheet.Cell(currentRow, 3).Value = receta.FechaCreacion;
-                        worksheet.Cell(currentRow, 4).Value = receta.UsuarioRegistra;
-                        currentRow++;
+                        worksheet.Cells[row, 1].Value = receta.RecetaID;
+                        worksheet.Cells[row, 2].Value = receta.NombreReceta;
+                        worksheet.Cells[row, 3].Value = receta.FechaCreacion;
+                        worksheet.Cells[row, 4].Value = receta.UsuarioRegistra;
+                        row++;
                     }
 
-                    // Ajustar el tamaño de las columnas
-                    worksheet.Columns().AdjustToContents();
+                    // Ajuste de columnas
+                    worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
 
-                    // Guardar el archivo Excel en un MemoryStream
-                    using (var stream = new MemoryStream())
-                    {
-                        workbook.SaveAs(stream);
-                        var content = stream.ToArray();
-
-                        // Devolver el archivo Excel como respuesta de descarga
-                        return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Recetas.xlsx");
-                    }
+                    // Guardar el archivo en memoria
+                    var fileContents = package.GetAsByteArray();
+                    return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "RecetasPorRango.xlsx");
                 }
             }
             catch (Exception ex)
             {
-                // Manejo de excepciones
-                objectResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
-                objectResponse.message = $"Error: {ex.Message}";
-                return new JsonResult(objectResponse);
+                return BadRequest("Error al generar el reporte: " + ex.Message);
+            }
+        }
+
+        // 2. Reporte de Contenido de Receta por ID
+        [HttpGet("contenido-receta/{idReceta}")]
+        public IActionResult GetContenidoRecetaPorIdExcel(int idReceta)
+        {
+            try
+            {
+                var contenidoReceta = _excelService.GetContenidoRecetaPorId(idReceta);
+
+                using (var package = new ExcelPackage())
+                {
+                    var worksheet = package.Workbook.Worksheets.Add("Contenido Receta");
+
+                    // Encabezado
+                    worksheet.Cells[1, 1].Value = "RecetaID";
+                    worksheet.Cells[1, 2].Value = "NombreReceta";
+                    worksheet.Cells[1, 3].Value = "FechaCreacion";
+                    worksheet.Cells[1, 4].Value = "UsuarioRegistra";
+                    worksheet.Row(1).Style.Font.Bold = true;
+
+                    // Datos
+                    int row = 2;
+                    foreach (var contenido in contenidoReceta)
+                    {
+                        worksheet.Cells[row, 1].Value = contenido.RecetaID;
+                        worksheet.Cells[row, 2].Value = contenido.NombreReceta;
+                        worksheet.Cells[row, 3].Value = contenido.FechaCreacion;
+                        worksheet.Cells[row, 4].Value = contenido.UsuarioRegistra;
+                        row++;
+                    }
+
+                    // Ajuste de columnas
+                    worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                    // Guardar el archivo en memoria
+                    var fileContents = package.GetAsByteArray();
+                    return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ContenidoReceta.xlsx");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error al generar el reporte: " + ex.Message);
+            }
+        }
+
+        // 3. Reporte de Traspasos de Entrada
+        [HttpGet("traspasos-entrada")]
+        public IActionResult GetTraspasosEntradaExcel(DateTime fechaInicio, DateTime fechaFin, int almacen, int tipoMovimiento)
+        {
+            try
+            {
+                var traspasosEntrada = _excelService.GetTraspasosEntrada(fechaInicio, fechaFin, almacen, tipoMovimiento);
+
+                using (var package = new ExcelPackage())
+                {
+                    var worksheet = package.Workbook.Worksheets.Add("Traspasos Entrada");
+
+                    // Encabezado
+                    worksheet.Cells[1, 1].Value = "IdTRSP";
+                    worksheet.Cells[1, 2].Value = "AlmacenOrigen";
+                    worksheet.Cells[1, 3].Value = "NombreAlmacenOrigen";
+                    worksheet.Cells[1, 4].Value = "AlmacenDestino";
+                    worksheet.Cells[1, 5].Value = "NombreAlmacenDestino";
+                    worksheet.Cells[1, 6].Value = "IdInsumo";
+                    worksheet.Cells[1, 7].Value = "DescripcionInsumo";
+                    worksheet.Cells[1, 8].Value = "FechaEntrada";
+                    worksheet.Cells[1, 9].Value = "FechaSalida";
+                    worksheet.Cells[1, 10].Value = "Cantidad";
+                    worksheet.Cells[1, 11].Value = "TipoMovimiento";
+                    worksheet.Cells[1, 12].Value = "Descripcion";
+                    worksheet.Cells[1, 13].Value = "NoFolio";
+                    worksheet.Cells[1, 14].Value = "FechaRegistro";
+                    worksheet.Cells[1, 15].Value = "UsuarioRegistra";
+                    worksheet.Row(1).Style.Font.Bold = true;
+
+                    // Datos
+                    int row = 2;
+                    foreach (var traspaso in traspasosEntrada)
+                    {
+                        worksheet.Cells[row, 1].Value = traspaso.IdTRSP;
+                        worksheet.Cells[row, 2].Value = traspaso.AlmacenOrigen;
+                        worksheet.Cells[row, 3].Value = traspaso.NombreAlmacenOrigen;
+                        worksheet.Cells[row, 4].Value = traspaso.AlmacenDestino;
+                        worksheet.Cells[row, 5].Value = traspaso.NombreAlmacenDestino;
+                        worksheet.Cells[row, 6].Value = traspaso.IdInsumo;
+                        worksheet.Cells[row, 7].Value = traspaso.DescripcionInsumo;
+                        worksheet.Cells[row, 8].Value = traspaso.FechaEntrada;
+                        worksheet.Cells[row, 9].Value = traspaso.FechaSalida;
+                        worksheet.Cells[row, 10].Value = traspaso.Cantidad;
+                        worksheet.Cells[row, 11].Value = traspaso.TipoMovimiento;
+                        worksheet.Cells[row, 12].Value = traspaso.Descripcion;
+                        worksheet.Cells[row, 13].Value = traspaso.NoFolio;
+                        worksheet.Cells[row, 14].Value = traspaso.FechaRegistro;
+                        worksheet.Cells[row, 15].Value = traspaso.UsuarioRegistra;
+                        row++;
+                    }
+
+                    // Ajuste de columnas
+                    worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                    // Guardar el archivo en memoria
+                    var fileContents = package.GetAsByteArray();
+                    return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "TraspasosEntrada.xlsx");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error al generar el reporte: " + ex.Message);
+            }
+        }
+
+        // 4. Reporte de Traspasos de Salida
+        [HttpGet("traspasos-salida")]
+        public IActionResult GetTraspasosSalidaExcel(DateTime fechaInicio, DateTime fechaFin, int almacen, int tipoMovimiento)
+        {
+            try
+            {
+                var traspasosSalida = _excelService.GetTraspasosSalida(fechaInicio, fechaFin, almacen, tipoMovimiento);
+
+                using (var package = new ExcelPackage())
+                {
+                    var worksheet = package.Workbook.Worksheets.Add("Traspasos Salida");
+
+                    // Encabezado
+                    worksheet.Cells[1, 1].Value = "IdTRSP";
+                    worksheet.Cells[1, 2].Value = "AlmacenOrigen";
+                    worksheet.Cells[1, 3].Value = "NombreAlmacenOrigen";
+                    worksheet.Cells[1, 4].Value = "AlmacenDestino";
+                    worksheet.Cells[1, 5].Value = "NombreAlmacenDestino";
+                    worksheet.Cells[1, 6].Value = "IdInsumo";
+                    worksheet.Cells[1, 7].Value = "DescripcionInsumo";
+                    worksheet.Cells[1, 8].Value = "FechaEntrada";
+                    worksheet.Cells[1, 9].Value = "FechaSalida";
+                    worksheet.Cells[1, 10].Value = "Cantidad";
+                    worksheet.Cells[1, 11].Value = "TipoMovimiento";
+                    worksheet.Cells[1, 12].Value = "Descripcion";
+                    worksheet.Cells[1, 13].Value = "NoFolio";
+                    worksheet.Cells[1, 14].Value = "FechaRegistro";
+                    worksheet.Cells[1, 15].Value = "UsuarioRegistra";
+                    worksheet.Row(1).Style.Font.Bold = true;
+
+                    // Datos
+                    int row = 2;
+                    foreach (var traspaso in traspasosSalida)
+                    {
+                        worksheet.Cells[row, 1].Value = traspaso.IdTRSP;
+                        worksheet.Cells[row, 2].Value = traspaso.AlmacenOrigen;
+                        worksheet.Cells[row, 3].Value = traspaso.NombreAlmacenOrigen;
+                        worksheet.Cells[row, 4].Value = traspaso.AlmacenDestino;
+                        worksheet.Cells[row, 5].Value = traspaso.NombreAlmacenDestino;
+                        worksheet.Cells[row, 6].Value = traspaso.IdInsumo;
+                        worksheet.Cells[row, 7].Value = traspaso.DescripcionInsumo;
+                        worksheet.Cells[row, 8].Value = traspaso.FechaEntrada;
+                        worksheet.Cells[row, 9].Value = traspaso.FechaSalida;
+                        worksheet.Cells[row, 10].Value = traspaso.Cantidad;
+                        worksheet.Cells[row, 11].Value = traspaso.TipoMovimiento;
+                        worksheet.Cells[row, 12].Value = traspaso.Descripcion;
+                        worksheet.Cells[row, 13].Value = traspaso.NoFolio;
+                        worksheet.Cells[row, 14].Value = traspaso.FechaRegistro;
+                        worksheet.Cells[row, 15].Value = traspaso.UsuarioRegistra;
+                        row++;
+                    }
+
+                    // Ajuste de columnas
+                    worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                    // Guardar el archivo en memoria
+                    var fileContents = package.GetAsByteArray();
+                    return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "TraspasosSalida.xlsx");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error al generar el reporte: " + ex.Message);
             }
         }
     }
