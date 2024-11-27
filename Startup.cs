@@ -63,6 +63,7 @@ namespace reportesApi
             services.AddSingleton<LoginService>();
             // services.AddSingleton<FuncionesExtraService>();
             services.AddSingleton<ExistenciasService>();
+            services.AddSingleton<ExcelService>();
             services.AddSingleton<TipoMovimientoService>();
             services.AddSingleton<MovimientosService>();
             services.AddSingleton<RenglonMovimientoService>();
