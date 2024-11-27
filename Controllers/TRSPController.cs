@@ -169,7 +169,7 @@ namespace reportesApi.Controllers
         }
 
 
-        [HttpHead("GetReporteTRSP")]
+        [HttpGet("GetReporteTRSP")]
         public IActionResult GetReporteTRSP(string? folio = null, bool download = false)
         {
             var objectResponse = Helper.GetStructResponse();
