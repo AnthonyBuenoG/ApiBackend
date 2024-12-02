@@ -89,8 +89,10 @@ namespace reportesApi.Controllers
                     // Encabezado
                     worksheet.Cells[1, 1].Value = "RecetaID";
                     worksheet.Cells[1, 2].Value = "NombreReceta";
-                    worksheet.Cells[1, 3].Value = "FechaCreacion";
-                    worksheet.Cells[1, 4].Value = "UsuarioRegistra";
+                    worksheet.Cells[1, 3].Value = "Insumo";
+                    worksheet.Cells[1, 4].Value = "Descripcion Insumo";
+                    worksheet.Cells[1, 5].Value = "FechaCreacion";
+                    worksheet.Cells[1, 6].Value = "UsuarioRegistra";
                     worksheet.Row(1).Style.Font.Bold = true;
 
                     // Datos
@@ -99,8 +101,10 @@ namespace reportesApi.Controllers
                     {
                         worksheet.Cells[row, 1].Value = contenido.RecetaID;
                         worksheet.Cells[row, 2].Value = contenido.NombreReceta;
-                        worksheet.Cells[row, 3].Value = contenido.FechaCreacion;
-                        worksheet.Cells[row, 4].Value = contenido.UsuarioRegistra;
+                        worksheet.Cells[row, 3].Value = contenido.Insumo;
+                        worksheet.Cells[row, 4].Value = contenido.DescripcionInsumo;
+                        worksheet.Cells[row, 5].Value = contenido.FechaCreacion;
+                        worksheet.Cells[row, 6].Value = contenido.UsuarioRegistra;
                         row++;
                     }
 

@@ -43,6 +43,9 @@ public class ContenidoRecetaModel
 {
     public string RecetaID { get; set; }
     public string NombreReceta { get; set; }
+    public string Insumo { get; set; }
+    public string DescripcionInsumo { get; set; }
+
     public string FechaCreacion { get; set; }
     public string UsuarioRegistra { get; set; }
   

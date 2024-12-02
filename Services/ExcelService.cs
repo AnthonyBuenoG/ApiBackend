@@ -85,8 +85,11 @@ namespace reportesApi.Services
                         {
                             RecetaID = dataRow["RecetaID"].ToString(),
                             NombreReceta = dataRow["NombreReceta"].ToString(),
+                            Insumo = dataRow["Insumo"].ToString(), 
+                            DescripcionInsumo = dataRow["DescripcionInsumo"].ToString(),
                             FechaCreacion = dataRow["FechaCreacion"].ToString(),
                             UsuarioRegistra = dataRow["UsuarioRegistra"].ToString(),
+                            
                          
                         }).ToList();
                 }
